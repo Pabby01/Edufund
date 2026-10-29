@@ -1,0 +1,3 @@
+[functions.cowrywise-status]
+verify_jwt = true
+entrypoint = "./functions/cowrywise-status/index.ts"
