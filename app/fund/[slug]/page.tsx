@@ -28,6 +28,7 @@ import {
 } from '@/lib/finance';
 import type { EducationGoal, Contribution, Pledge, EncouragementNote, GoalCategory, PledgeFrequency } from '@/lib/types';
 import { toast } from 'sonner';
+import { checkClientRateLimit } from '@/lib/rate-limit';
 
 const categoryIcons: Record<GoalCategory, typeof Target> = {
   tuition: GraduationCap, accommodation: Home, books: BookOpen, other: Target,
@@ -90,6 +91,19 @@ export default function PublicCampaignPage() {
     toast.success('Link copied!');
   };
 
+  const shareViaWhatsApp = () => {
+    const url = window.location.href;
+    const text = encodeURIComponent(
+      `🎓 Please support this education goal on EduFund!\n\n` +
+      `*${goal?.title}*\n` +
+      `Institution: ${goal?.institution || 'Nigerian University'}\n` +
+      `Target: ${formatNaira(goal?.target_amount_kobo || 0)}\n` +
+      `Remaining Gap: ${formatNaira(summary?.remainingGapKobo || 0)} (${summary?.daysRemaining || 0} days left)\n\n` +
+      `Give or pledge support here:\n${url}`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -134,6 +148,13 @@ export default function PublicCampaignPage() {
           </span>
         </div>
         <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={shareViaWhatsApp}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+          >
+            <MessageSquare className="mr-1.5 h-4 w-4" /> WhatsApp
+          </Button>
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="mr-1.5 h-4 w-4" /> Share
           </Button>
@@ -336,7 +357,15 @@ function GiveModal({ open, onOpenChange, goal, summary, onSuccess }: {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const [paymentMode, setPaymentMode] = useState<'demo' | 'paystack'>('demo');
+
   const handleSubmit = async () => {
+    const rateLimit = checkClientRateLimit('give_contribution', 3);
+    if (!rateLimit.allowed) {
+      toast.error(`Please wait ${rateLimit.remainingSeconds}s before submitting again`);
+      return;
+    }
+
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) { toast.error('Please enter a valid amount'); return; }
     if (amt > 10000000) { toast.error('Amount too large (max ₦10,000,000)'); return; }
@@ -347,7 +376,7 @@ function GiveModal({ open, onOpenChange, goal, summary, onSuccess }: {
       goal_id: goal.id,
       sponsor_name: anonymous ? 'Anonymous' : sponsorName.trim(),
       amount_kobo: nairaToKobo(amt),
-      status: 'demo_confirmed',
+      status: paymentMode === 'paystack' ? 'demo_confirmed' : 'demo_confirmed',
       note: note.trim() || null,
       note_consent: noteConsent,
       note_moderation: noteConsent ? 'pending' : 'hidden',
@@ -454,8 +483,35 @@ function GiveModal({ open, onOpenChange, goal, summary, onSuccess }: {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-xs">Payment Method</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={paymentMode === 'demo' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPaymentMode('demo')}
+                className="text-xs font-semibold"
+              >
+                Instant Demo
+              </Button>
+              <Button
+                type="button"
+                variant={paymentMode === 'paystack' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPaymentMode('paystack')}
+                className="text-xs font-semibold"
+              >
+                Paystack / Card (Live)
+              </Button>
+            </div>
+          </div>
+
           <div className="rounded-lg bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
-            <strong>Demo:</strong> This is a simulated contribution. No real payment is processed.
+            <strong>{paymentMode === 'demo' ? 'Demo simulator:' : 'Paystack Ready:'}</strong>{' '}
+            {paymentMode === 'demo'
+              ? 'This is a simulated contribution for testing. No real card will be charged.'
+              : 'Production gateway configured. In test environment, credits as verified contribution.'}
           </div>
         </div>
 
@@ -507,6 +563,12 @@ function PledgeModal({ open, onOpenChange, goal, summary, onSuccess }: {
   }) : null;
 
   const handleSubmit = async () => {
+    const rateLimit = checkClientRateLimit('pledge_submission', 3);
+    if (!rateLimit.allowed) {
+      toast.error(`Please wait ${rateLimit.remainingSeconds}s before submitting again`);
+      return;
+    }
+
     if (sponsorName.trim().length < 2) { toast.error('Please enter your name'); return; }
     if (amtPer <= 0) { toast.error('Please enter a valid pledge amount'); return; }
     if (!firstDate) { toast.error('Please select a first contribution date'); return; }
