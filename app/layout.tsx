@@ -6,18 +6,20 @@ import { Navbar } from '@/components/navbar';
 import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
-  title: 'EduFund — Every semester funded, on one shelf',
+  // NEXT_PUBLIC_SITE_URL should be set to the deployed origin (e.g. https://edufund.example).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: 'EduFund — Every semester funded, before the deadline',
   description:
     'EduFund helps Nigerian university students and their sponsors plan, save towards, and collectively fund school fees and accommodation before payment deadlines.',
   openGraph: {
-    title: 'EduFund — Every semester funded, on one shelf',
+    title: 'EduFund — Every semester funded, before the deadline',
     description:
       'Plan, save towards, and collectively fund education before payment deadlines.',
-    images: [{ url: '/og-image.png' }],
+    images: [{ url: '/api/og', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: [{ url: '/og-image.png' }],
+    images: [{ url: '/api/og' }],
   },
 };
 
@@ -32,7 +34,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script
@@ -41,7 +43,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased min-h-screen bg-background text-foreground selection:bg-brand-gold/30 selection:text-brand-gold-dark dark:selection:text-brand-gold-light">
+      <body className="min-h-screen selection:bg-brand-gold/30">
         <ThemeProvider>
           <AuthProvider>
             <Navbar />

@@ -30,11 +30,11 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const aislesDropdown = [
-  { name: 'Tuition & Fees', count: '34 CAMPAIGNS', href: '/#aisles', icon: GraduationCap },
-  { name: 'Hostels & Lodges', count: '19 CAMPAIGNS', href: '/#aisles', icon: Home },
-  { name: 'Textbooks & STEM Gear', count: '14 CAMPAIGNS', href: '/#aisles', icon: BookOpen },
-  { name: 'Final Clearance', count: '8 CAMPAIGNS', href: '/#aisles', icon: BookMarked },
+const tracksDropdown = [
+  { name: 'Tuition & Fees', count: '34 CAMPAIGNS', href: '/#tracks', icon: GraduationCap },
+  { name: 'Hostels & Lodges', count: '19 CAMPAIGNS', href: '/#tracks', icon: Home },
+  { name: 'Textbooks & STEM Gear', count: '14 CAMPAIGNS', href: '/#tracks', icon: BookOpen },
+  { name: 'Final Clearance', count: '8 CAMPAIGNS', href: '/#tracks', icon: BookMarked },
 ];
 
 export function Navbar() {
@@ -57,7 +57,7 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1 font-medium text-sm">
-          {/* Shelfline-inspired Megamenu Trigger */}
+          {/* Megamenu Trigger */}
           <div
             className="relative"
             onMouseEnter={() => setMegamenuOpen(true)}
@@ -67,35 +67,35 @@ export function Navbar() {
               onClick={() => setMegamenuOpen(!megamenuOpen)}
               className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
             >
-              Aisles
+              Tracks
               <ChevronDown className={`h-3.5 w-3.5 transition-transform ${megamenuOpen ? 'rotate-180 text-brand-gold' : ''}`} />
             </button>
 
-            {/* Shelfline Megamenu Dropdown (Image 2 style) */}
+            {/* Megamenu Dropdown */}
             {megamenuOpen && (
               <div className="absolute top-full left-0 mt-1 w-[680px] rounded-2xl border border-border/60 bg-card/95 p-6 shadow-2xl backdrop-blur-2xl animate-fade-up">
                 <div className="grid grid-cols-12 gap-6">
-                  {/* Left Column: Aisles list */}
+                  {/* Left Column: Tracks list */}
                   <div className="col-span-5 space-y-3 border-r border-border/50 pr-4">
                     <span className="font-mono text-[10px] font-bold tracking-widest text-brand-gold-dark dark:text-brand-gold uppercase">
-                      AISLES
+                      FUNDING TRACKS
                     </span>
                     <div className="space-y-1">
-                      {aislesDropdown.map((aisle) => {
-                        const Icon = aisle.icon;
+                      {tracksDropdown.map((track) => {
+                        const Icon = track.icon;
                         return (
                           <Link
-                            key={aisle.name}
-                            href={aisle.href}
+                            key={track.name}
+                            href={track.href}
                             onClick={() => setMegamenuOpen(false)}
                             className="flex items-center justify-between rounded-lg p-2 text-xs font-semibold hover:bg-muted transition-colors"
                           >
                             <span className="flex items-center gap-2">
                               <Icon className="h-4 w-4 text-brand-blue" />
-                              {aisle.name}
+                              {track.name}
                             </span>
                             <span className="font-mono text-[9px] text-muted-foreground">
-                              {aisle.count}
+                              {track.count}
                             </span>
                           </Link>
                         );
@@ -148,7 +148,7 @@ export function Navbar() {
             href="/#stacks"
             className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
           >
-            Bundles
+            Semester Stacks
           </Link>
 
           <Link
@@ -243,8 +243,8 @@ export function Navbar() {
                   <EduFundLogo />
                 </Link>
                 <div className="space-y-1">
-                  <Link href="/#aisles" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
-                    Aisles
+                  <Link href="/#tracks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                    Funding Tracks
                   </Link>
                   <Link href="/#stacks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
                     Semester Stacks
