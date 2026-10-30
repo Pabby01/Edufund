@@ -31,10 +31,10 @@ import {
 import { cn } from '@/lib/utils';
 
 const tracksDropdown = [
-  { name: 'Tuition & Fees', count: '34 CAMPAIGNS', href: '/#tracks', icon: GraduationCap },
-  { name: 'Hostels & Lodges', count: '19 CAMPAIGNS', href: '/#tracks', icon: Home },
-  { name: 'Textbooks & STEM Gear', count: '14 CAMPAIGNS', href: '/#tracks', icon: BookOpen },
-  { name: 'Final Clearance', count: '8 CAMPAIGNS', href: '/#tracks', icon: BookMarked },
+  { name: 'Tuition & Fees', count: '34 CAMPAIGNS', href: '/tracks/tuition', icon: GraduationCap },
+  { name: 'Hostels & Lodges', count: '19 CAMPAIGNS', href: '/tracks/hostels', icon: Home },
+  { name: 'Textbooks & STEM Gear', count: '14 CAMPAIGNS', href: '/tracks/stem', icon: BookOpen },
+  { name: 'Final Clearance', count: '8 CAMPAIGNS', href: '/tracks/clearance', icon: BookMarked },
 ];
 
 export function Navbar() {
@@ -145,17 +145,38 @@ export function Navbar() {
           </div>
 
           <Link
-            href="/#stacks"
+            href="/tracks"
+            className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
+          >
+            All Tracks
+          </Link>
+
+          <Link
+            href="/stacks"
             className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
           >
             Semester Stacks
           </Link>
 
           <Link
-            href="/#how-it-works"
+            href="/explore"
+            className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
+          >
+            Explore
+          </Link>
+
+          <Link
+            href="/how-it-works"
             className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
           >
             How it works
+          </Link>
+
+          <Link
+            href="/about"
+            className="rounded-full px-3.5 py-1.5 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
+          >
+            About
           </Link>
 
           {user && (
@@ -243,14 +264,20 @@ export function Navbar() {
                   <EduFundLogo />
                 </Link>
                 <div className="space-y-1">
-                  <Link href="/#tracks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                  <Link href="/tracks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
                     Funding Tracks
                   </Link>
-                  <Link href="/#stacks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                  <Link href="/stacks" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
                     Semester Stacks
                   </Link>
-                  <Link href="/#how-it-works" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                  <Link href="/explore" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                    Explore Campaigns
+                  </Link>
+                  <Link href="/how-it-works" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
                     How it works
+                  </Link>
+                  <Link href="/about" className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium hover:bg-muted">
+                    About EduFund
                   </Link>
                   {user && (
                     <>

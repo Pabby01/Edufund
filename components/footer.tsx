@@ -91,11 +91,11 @@ export function Footer() {
               TRACKS
             </h4>
             <ul className="space-y-2.5 text-neutral-400">
-              <li><Link href="/#tracks" className="hover:text-white transition-colors">Tuition & Fees</Link></li>
-              <li><Link href="/#tracks" className="hover:text-white transition-colors">Hostels & Lodges</Link></li>
-              <li><Link href="/#tracks" className="hover:text-white transition-colors">STEM & Textbooks</Link></li>
-              <li><Link href="/#tracks" className="hover:text-white transition-colors">Final Clearance</Link></li>
-              <li><Link href="/#stacks" className="hover:text-white transition-colors">Semester Stacks</Link></li>
+              <li><Link href="/tracks/tuition" className="hover:text-white transition-colors">Tuition & Fees</Link></li>
+              <li><Link href="/tracks/hostels" className="hover:text-white transition-colors">Hostels & Lodges</Link></li>
+              <li><Link href="/tracks/stem" className="hover:text-white transition-colors">STEM & Textbooks</Link></li>
+              <li><Link href="/tracks/clearance" className="hover:text-white transition-colors">Final Clearance</Link></li>
+              <li><Link href="/stacks" className="hover:text-white transition-colors">Semester Stacks</Link></li>
             </ul>
           </div>
 
@@ -105,11 +105,11 @@ export function Footer() {
               PLATFORM
             </h4>
             <ul className="space-y-2.5 text-neutral-400">
-              <li><Link href="/#how-it-works" className="hover:text-white transition-colors">How it works</Link></li>
-              <li><Link href="/auth?mode=signup" className="hover:text-white transition-colors">Start a Goal</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-white transition-colors">How it works</Link></li>
+              <li><Link href="/explore" className="hover:text-white transition-colors">Explore Campaigns</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">About EduFund</Link></li>
+              <li><Link href="/support" className="hover:text-white transition-colors">Help & Support</Link></li>
               <li><Link href="/auth?mode=signin" className="hover:text-white transition-colors">Student Portal</Link></li>
-              <li><Link href="/support" className="hover:text-white transition-colors">Verification Guide</Link></li>
-              <li><Link href="/support" className="hover:text-white transition-colors">Cowrywise Vault</Link></li>
             </ul>
           </div>
 
