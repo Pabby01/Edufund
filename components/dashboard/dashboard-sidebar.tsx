@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, isUserAdmin } from '@/lib/auth-context';
 import { EduFundLogo } from '@/components/edu-fund-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,8 @@ export function DashboardSidebar() {
     router.push('/');
   };
 
+  const isAdmin = profile?.is_admin || isUserAdmin(user?.email, profile?.is_admin);
+
   const primaryNav = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
     { name: 'New Goal', href: '/goals/new', icon: Target, exact: true },
@@ -54,7 +56,7 @@ export function DashboardSidebar() {
     { name: 'Settings & Profile', href: '/settings', icon: Settings, exact: false },
   ];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     primaryNav.push({ name: 'Admin Registry', href: '/admin', icon: Shield, exact: false });
   }
 
@@ -108,7 +110,12 @@ export function DashboardSidebar() {
               </p>
             </div>
           </div>
-          {profile?.institution ? (
+          {isAdmin ? (
+            <div className="flex items-center gap-1.5 pt-1 border-t border-border/50 text-[10px] font-mono text-brand-gold font-bold">
+              <Shield className="h-3 w-3 shrink-0 text-brand-gold" />
+              <span>Platform Administrator</span>
+            </div>
+          ) : profile?.institution ? (
             <div className="flex items-center gap-1.5 pt-1 border-t border-border/50 text-[10px] font-mono text-brand-gold-dark dark:text-brand-gold">
               <GraduationCap className="h-3 w-3 shrink-0" />
               <span className="truncate">{profile.institution}</span>

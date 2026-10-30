@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, isUserAdmin } from '@/lib/auth-context';
 import { EduFundLogo } from '@/components/edu-fund-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,8 @@ export function DashboardNav() {
     router.push('/');
   };
 
+  const isAdmin = profile?.is_admin || isUserAdmin(user?.email, profile?.is_admin);
+
   const navLinks = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
     { name: 'New Goal', href: '/goals/new', icon: Target, exact: true },
@@ -45,7 +47,7 @@ export function DashboardNav() {
     { name: 'Settings', href: '/settings', icon: Settings, exact: false },
   ];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     navLinks.push({ name: 'Admin', href: '/admin', icon: Shield, exact: false });
   }
 
@@ -125,7 +127,7 @@ export function DashboardNav() {
                 {profile?.display_name || user?.email?.split('@')[0] || 'Student'}
               </span>
               <span className="font-mono text-[10px] text-muted-foreground">
-                {profile?.is_admin ? 'Admin' : 'Verified'}
+                {isAdmin ? 'Admin' : 'Verified'}
               </span>
             </div>
             <Button

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { EduFundLogo } from '@/components/edu-fund-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, isUserAdmin } from '@/lib/auth-context';
 import {
   Sheet,
   SheetContent,
@@ -42,6 +42,7 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [megamenuOpen, setMegamenuOpen] = useState(false);
+  const isAdmin = profile?.is_admin || isUserAdmin(user?.email, profile?.is_admin);
 
   const handleSignOut = async () => {
     await signOut();
@@ -203,7 +204,7 @@ export function Navbar() {
               >
                 Pledges
               </Link>
-              {profile?.is_admin && (
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className={cn(
@@ -299,6 +300,12 @@ export function Navbar() {
                         <Settings className="h-4 w-4" />
                         Settings
                       </Link>
+                      {isAdmin && (
+                        <Link href="/admin" className="flex items-center gap-2 p-2 rounded-lg text-sm font-semibold hover:bg-muted text-brand-blue dark:text-brand-gold">
+                          <Shield className="h-4 w-4" />
+                          Admin Registry
+                        </Link>
+                      )}
                     </>
                   )}
                 </div>

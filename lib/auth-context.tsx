@@ -5,6 +5,16 @@ import { Session, User } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { Profile } from '@/lib/types';
 
+export const ADMIN_EMAILS: readonly string[] = [
+  'adeolalasisi6@gmail.com',
+];
+
+export function isUserAdmin(email?: string | null, profileIsAdmin?: boolean): boolean {
+  if (profileIsAdmin) return true;
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
@@ -41,18 +51,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProfile = useCallback(async (uid: string) => {
+  const loadProfile = useCallback(async (uid: string, userEmail?: string | null) => {
     const { data } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', uid)
       .maybeSingle();
-    setProfile(data as Profile | null);
+
+    const isAdmin = isUserAdmin(userEmail, (data as Profile | null)?.is_admin);
+
+    if (data) {
+      const enriched: Profile = {
+        ...(data as Profile),
+        is_admin: isAdmin,
+      };
+
+      // If user is designated as admin by email but DB record hasn't updated yet, sync to DB
+      if (isAdmin && !data.is_admin) {
+        supabase.from('profiles').update({ is_admin: true }).eq('id', uid).then();
+      }
+
+      setProfile(enriched);
+    } else if (userEmail) {
+      // Fallback: profile row does not exist yet for this user
+      const newProfile: Partial<Profile> = {
+        id: uid,
+        display_name: userEmail.split('@')[0],
+        is_admin: isAdmin,
+      };
+      await supabase.from('profiles').upsert(newProfile);
+      setProfile({
+        id: uid,
+        display_name: userEmail.split('@')[0],
+        institution: null,
+        course: null,
+        graduation_year: null,
+        avatar_url: null,
+        public_display_name: null,
+        is_admin: isAdmin,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    } else {
+      setProfile(null);
+    }
   }, [supabase]);
 
   const refreshProfile = useCallback(async () => {
     if (user) {
-      await loadProfile(user.id);
+      await loadProfile(user.id, user.email);
     }
   }, [user, loadProfile]);
 
@@ -65,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       syncAuthCookies(session);
       if (session?.user) {
-        loadProfile(session.user.id).finally(() => {
+        loadProfile(session.user.id, session.user.email).finally(() => {
           if (mounted) setLoading(false);
         });
       } else {
@@ -79,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         syncAuthCookies(session);
         if (session?.user) {
-          await loadProfile(session.user.id);
+          await loadProfile(session.user.id, session.user.email);
         } else {
           setProfile(null);
         }

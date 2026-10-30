@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, isUserAdmin } from '@/lib/auth-context';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,11 +96,13 @@ export default function AdminPage() {
     setLoading(false);
   }, [supabase, loadSquads]);
 
+  const isAdmin = profile?.is_admin || isUserAdmin(user?.email, profile?.is_admin);
+
   useEffect(() => {
     if (!authLoading && !user) { router.push('/auth'); return; }
-    if (!authLoading && user && !profile?.is_admin) { router.push('/dashboard'); return; }
-    if (user && profile?.is_admin) loadData();
-  }, [user, profile, authLoading, router, loadData]);
+    if (!authLoading && user && !isAdmin) { router.push('/dashboard'); return; }
+    if (user && isAdmin) loadData();
+  }, [user, isAdmin, authLoading, router, loadData]);
 
   const moderateNote = async (noteId: string, status: 'approved' | 'hidden') => {
     const { error } = await supabase.from('encouragement_notes').update({ moderation_status: status }).eq('id', noteId);
@@ -158,7 +160,7 @@ export default function AdminPage() {
   if (authLoading || (user && !profile)) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
-  if (!user || !profile?.is_admin) return null;
+  if (!user || !isAdmin) return null;
 
   const publishedGoals = goals.filter((g) => g.visibility === 'published');
   const draftGoals = goals.filter((g) => g.visibility === 'draft');

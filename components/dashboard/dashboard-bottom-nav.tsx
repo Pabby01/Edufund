@@ -3,12 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth, isUserAdmin } from '@/lib/auth-context';
 import {
   LayoutDashboard,
   Target,
   Heart,
   Settings,
   ShieldCheck,
+  Shield,
   Compass,
   Users,
 } from 'lucide-react';
@@ -16,12 +18,16 @@ import { cn } from '@/lib/utils';
 
 export function DashboardBottomNav() {
   const pathname = usePathname();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.is_admin || isUserAdmin(user?.email, profile?.is_admin);
 
   const tabs = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
     { name: 'New Goal', href: '/goals/new', icon: Target, exact: true },
     { name: 'Pledges', href: '/pledges', icon: Heart, exact: false },
-    { name: 'Sponsor', href: '/sponsor', icon: ShieldCheck, exact: false },
+    isAdmin
+      ? { name: 'Admin', href: '/admin', icon: Shield, exact: false }
+      : { name: 'Sponsor', href: '/sponsor', icon: ShieldCheck, exact: false },
     { name: 'Settings', href: '/settings', icon: Settings, exact: false },
   ];
 
