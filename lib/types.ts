@@ -125,3 +125,21 @@ export interface ProviderAccount {
   created_at: string;
   updated_at: string;
 }
+
+export interface AlumniSquad {
+  id: string;
+  slug: string;
+  name: string;
+  university: string;
+  faculty: string;
+  class_year?: string | null;
+  target_amount_kobo: number;
+  raised_amount_kobo: number;
+  members_count: number;
+  students_supported: number;
+  coordinator_name: string;
+  coordinator_contact?: string | null;
+  description: string;
+  created_at?: string;
+  updated_at?: string;
+}

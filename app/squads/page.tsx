@@ -2,115 +2,35 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getSupabaseClient } from '@/lib/supabase/client';
-import { formatNaira, formatNairaShort } from '@/lib/finance';
+import { fetchAllSquads } from '@/lib/squads';
+import type { AlumniSquad } from '@/lib/types';
+import { formatNaira } from '@/lib/finance';
 import {
   Users,
   Search,
-  GraduationCap,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
-  Heart,
   ShieldCheck,
-  TrendingUp,
   Plus,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PillButton } from '@/components/landing/primitives';
 
-export interface AlumniSquad {
-  id: string;
-  name: string;
-  university: string;
-  faculty: string;
-  classYear: string;
-  targetKobo: number;
-  raisedKobo: number;
-  membersCount: number;
-  studentsSupported: number;
-  coordinator: string;
-  description: string;
-}
-
-const defaultSquads: AlumniSquad[] = [
-  {
-    id: 'unilag-cs-18',
-    name: "UNILAG Computer Science '18 Squad",
-    university: 'University of Lagos (UNILAG)',
-    faculty: 'Faculty of Science',
-    classYear: 'Class of 2018',
-    targetKobo: 250000000, // ₦2.5M
-    raisedKobo: 185000000, // ₦1.85M
-    membersCount: 28,
-    studentsSupported: 6,
-    coordinator: 'Engr. Dapo Alabi (Tech Lead, Lagos)',
-    description:
-      'Alumni class set pooling monthly pledges to fund indigent 300L & 400L computer science students before matriculation portal closure.',
-  },
-  {
-    id: 'ui-med-15',
-    name: 'UI College of Medicine 2015 Circle',
-    university: 'University of Ibadan (UI)',
-    faculty: 'College of Medicine & Dentistry',
-    classYear: 'Class of 2015',
-    targetKobo: 450000000, // ₦4.5M
-    raisedKobo: 390000000, // ₦3.9M
-    membersCount: 42,
-    studentsSupported: 8,
-    coordinator: 'Dr. Kelechi Nwosu (UCH Consultant)',
-    description:
-      'Medical alumni paying teaching hospital school fees and clinical hostel accommodation for indigent 500L medical students.',
-  },
-  {
-    id: 'oau-law-19',
-    name: 'Great Ife Law Alumni Set 2019',
-    university: 'Obafemi Awolowo University (OAU)',
-    faculty: 'Faculty of Law',
-    classYear: 'Class of 2019',
-    targetKobo: 180000000, // ₦1.8M
-    raisedKobo: 145000000, // ₦1.45M
-    membersCount: 31,
-    studentsSupported: 4,
-    coordinator: 'Barr. Folashade Adeleke (Abuja)',
-    description:
-      'Class pooling funds for finalist law student project fieldwork, Nigerian Law School application deposits, and library dues.',
-  },
-  {
-    id: 'unn-elec-20',
-    name: 'UNN Electronic Engineering Alumni Squad',
-    university: 'University of Nigeria, Nsukka (UNN)',
-    faculty: 'Faculty of Engineering',
-    classYear: 'Class of 2020',
-    targetKobo: 200000000, // ₦2.0M
-    raisedKobo: 160000000, // ₦1.6M
-    membersCount: 22,
-    studentsSupported: 5,
-    coordinator: 'Ifeanyi Okoro (Hardware Engineer)',
-    description:
-      'Supporting penultimate and final year engineering scholars with laboratory fees and practical embedded hardware toolkits.',
-  },
-];
-
 export default function SquadsPage() {
   const [search, setSearch] = useState('');
   const [selectedUni, setSelectedUni] = useState('all');
-  const [squads, setSquads] = useState<AlumniSquad[]>(defaultSquads);
+  const [squads, setSquads] = useState<AlumniSquad[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // In production, sync with Supabase squads table
   useEffect(() => {
-    async function fetchSquads() {
-      try {
-        const supabase = getSupabaseClient();
-        const { data } = await supabase.from('alumni_squads').select('*');
-        if (data && data.length > 0) {
-          setSquads(data as AlumniSquad[]);
-        }
-      } catch {
-        // Fallback to default class squads
-      }
+    async function load() {
+      setLoading(true);
+      const data = await fetchAllSquads();
+      setSquads(data);
+      setLoading(false);
     }
-    fetchSquads();
+    load();
   }, []);
 
   const filtered = squads.filter((sq) => {
@@ -179,80 +99,97 @@ export default function SquadsPage() {
       </div>
 
       {/* Squad Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {filtered.map((squad) => {
-          const percent = Math.min(100, Math.round((squad.raisedKobo / squad.targetKobo) * 100));
+      {loading ? (
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border bg-card p-12 text-center">
+          <Users className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
+          <h3 className="font-display text-lg font-bold">No squads found</h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Try adjusting your search query or university filter.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          {filtered.map((squad) => {
+            const percent = Math.min(
+              100,
+              Math.round(((squad.raised_amount_kobo || 0) / (squad.target_amount_kobo || 1)) * 100)
+            );
 
-          return (
-            <div
-              key={squad.id}
-              className="group flex flex-col justify-between rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-brand-gold/60 transition-all duration-300 space-y-6"
-            >
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="rounded-full border border-border bg-muted/60 px-3 py-1 font-bold text-muted-foreground">
-                    {squad.classYear}
-                  </span>
-                  <span className="text-emerald-500 font-bold flex items-center gap-1">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    {squad.studentsSupported} Scholars Cleared
-                  </span>
-                </div>
-
-                {/* Title & University */}
-                <div>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground group-hover:text-brand-blue transition-colors">
-                    {squad.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground font-mono mt-1">
-                    {squad.university} · {squad.faculty}
-                  </p>
-                </div>
-
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {squad.description}
-                </p>
-
-                {/* Progress bar */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between items-center font-mono text-xs">
-                    <span className="font-bold text-foreground">{formatNaira(squad.raisedKobo)}</span>
-                    <span className="text-muted-foreground text-[11px]">
-                      Target: {formatNaira(squad.targetKobo)} ({percent}%)
+            return (
+              <div
+                key={squad.id || squad.slug}
+                className="group flex flex-col justify-between rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-brand-gold/60 transition-all duration-300 space-y-6"
+              >
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between font-mono text-xs">
+                    <span className="rounded-full border border-border bg-muted/60 px-3 py-1 font-bold text-muted-foreground">
+                      {squad.class_year || 'Alumni Set'}
+                    </span>
+                    <span className="text-emerald-500 font-bold flex items-center gap-1">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      {squad.students_supported || 0} Scholars Cleared
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full gradient-bg-blue transition-all duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
+
+                  {/* Title & University */}
+                  <div>
+                    <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground group-hover:text-brand-blue transition-colors">
+                      {squad.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono mt-1">
+                      {squad.university} · {squad.faculty}
+                    </p>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    {squad.description}
+                  </p>
+
+                  {/* Progress bar */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex justify-between items-center font-mono text-xs">
+                      <span className="font-bold text-foreground">{formatNaira(squad.raised_amount_kobo || 0)}</span>
+                      <span className="text-muted-foreground text-[11px]">
+                        Target: {formatNaira(squad.target_amount_kobo)} ({percent}%)
+                      </span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full gradient-bg-blue transition-all duration-500"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Coordinator Tag */}
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-3 font-mono text-[11px] flex items-center justify-between">
+                    <span className="text-muted-foreground">Squad Coordinator:</span>
+                    <span className="font-bold text-foreground">{squad.coordinator_name}</span>
                   </div>
                 </div>
 
-                {/* Coordinator Tag */}
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-3 font-mono text-[11px] flex items-center justify-between">
-                  <span className="text-muted-foreground">Squad Coordinator:</span>
-                  <span className="font-bold text-foreground">{squad.coordinator}</span>
+                {/* Action row */}
+                <div className="pt-4 border-t border-border/60 flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-muted-foreground">
+                    {squad.members_count || 1} Alumni Members
+                  </span>
+                  <Link href={`/squads/${squad.slug || squad.id}`}>
+                    <Button size="sm" className="rounded-full gradient-bg-blue text-white font-mono text-xs h-8 px-4">
+                      <span>Join & Pledge</span>
+                      <ArrowRight className="ml-1.5 h-3 w-3" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
-
-              {/* Action row */}
-              <div className="pt-4 border-t border-border/60 flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-muted-foreground">
-                  {squad.membersCount} Alumni Members
-                </span>
-                <Link href={`/squads/${squad.id}`}>
-                  <Button size="sm" className="rounded-full gradient-bg-blue text-white font-mono text-xs h-8 px-4">
-                    <span>Join & Pledge</span>
-                    <ArrowRight className="ml-1.5 h-3 w-3" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Start a Squad CTA */}
       <div className="mt-16 rounded-3xl gradient-bg-blue p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
@@ -264,11 +201,10 @@ export default function SquadsPage() {
             Rally your departmental classmates to adopt indigent scholars and ensure 100% matriculation retention.
           </p>
         </div>
-        <PillButton href="/auth?mode=signup" variant="gold" icon={Plus}>
-          Register an Alumni Squad
+        <PillButton href="/admin" variant="gold" icon={Plus}>
+          Manage Squads in Admin
         </PillButton>
       </div>
     </div>
   );
 }
-
