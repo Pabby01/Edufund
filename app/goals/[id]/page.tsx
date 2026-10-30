@@ -183,6 +183,22 @@ export default function GoalDetailPage() {
     loadData();
   };
 
+  const moderatePledge = async (pledgeId: string, status: 'approved' | 'hidden') => {
+    const { error } = await supabase.from('pledges').update({ note_moderation: status }).eq('id', pledgeId);
+    if (error) { toast.error('Failed to update pledge: ' + error.message); return; }
+    toast.success(status === 'approved' ? 'Pledge acknowledged and confirmed!' : 'Pledge hidden');
+    loadData();
+  };
+
+  const deletePledge = async (pledgeId: string) => {
+    const { error } = await supabase.from('pledges').delete().eq('id', pledgeId);
+    if (error) {
+      await supabase.from('pledges').update({ status: 'cancelled' }).eq('id', pledgeId);
+    }
+    toast.success('Pledge removed');
+    loadData();
+  };
+
   const handleDeposit = async () => {
     const amountNum = parseFloat(depositAmount);
     if (!amountNum || amountNum < 500) {
@@ -195,13 +211,12 @@ export default function GoalDetailPage() {
     const { error } = await supabase.from('contributions').insert({
       goal_id: goal!.id,
       amount_kobo: kobo,
-      sponsor_name: 'Self-Savings (Student)',
-      sponsor_email: user?.email || 'student@edufund.ng',
+      sponsor_name: goal!.public_display_name ? `${goal!.public_display_name} (Self-Savings)` : 'Self-Savings (Student)',
       status: 'demo_confirmed',
-      payment_reference: 'CW-VAULT-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
       note: 'Self-deposit locked in Cowrywise goal vault',
-      is_anonymous: false,
       note_consent: false,
+      note_moderation: 'approved',
+      currency: 'NGN',
     });
 
     if (error) {
@@ -338,6 +353,27 @@ export default function GoalDetailPage() {
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleArchive}>Archive</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="border-red-500/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                <Trash2 className="mr-1.5 h-4 w-4" /> Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this goal permanently?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete this goal along with all associated contributions and pledges. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                  Delete Goal
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -530,6 +566,35 @@ export default function GoalDetailPage() {
                               {formatNaira(p.amount_per_kobo)} / {p.frequency} · {projectedCount} payments projected
                             </p>
                             {p.note && <p className="mt-1 text-xs italic text-muted-foreground">&quot;{p.note}&quot;</p>}
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {p.note_moderation === 'approved' ? (
+                                <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600 bg-emerald-500/10">
+                                  ✓ Acknowledged by You
+                                </Badge>
+                              ) : (
+                                <>
+                                  <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 bg-amber-500/10">
+                                    Awaiting Your Acknowledgment
+                                  </Badge>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-6 px-2 text-[10px] rounded-full border-emerald-500/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                                    onClick={() => moderatePledge(p.id, 'approved')}
+                                  >
+                                    <CheckCircle2 className="mr-1 h-3 w-3" /> Acknowledge Pledge
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 px-2 text-[10px] text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                onClick={() => deletePledge(p.id)}
+                              >
+                                <Trash2 className="mr-1 h-3 w-3" /> Remove
+                              </Button>
+                            </div>
                           </div>
                         </div>
                         <Badge variant={p.status === 'active' ? 'default' : p.status === 'paused' ? 'secondary' : 'outline'}>

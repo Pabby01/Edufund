@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   Loader2,
   Search,
+  Trash2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,17 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 interface PledgeWithGoal extends Pledge {
@@ -133,6 +145,20 @@ export default function SponsorDashboardPage() {
       return;
     }
     toast.success(`Pledge marked as ${status}`);
+    loadSponsorData(sponsorEmail);
+  };
+
+  const handleDeletePledge = async (pledgeId: string) => {
+    const { error } = await supabase.from('pledges').delete().eq('id', pledgeId);
+    if (error) {
+      // Fallback: update status to cancelled
+      const { error: cancelErr } = await supabase.from('pledges').update({ status: 'cancelled' }).eq('id', pledgeId);
+      if (cancelErr) {
+        toast.error('Could not delete pledge: ' + cancelErr.message);
+        return;
+      }
+    }
+    toast.success('Pledge deleted successfully');
     loadSponsorData(sponsorEmail);
   };
 
@@ -268,13 +294,24 @@ export default function SponsorDashboardPage() {
                         For: {p.goal?.title || 'Education Campaign'}
                       </p>
                     </div>
-                    <span className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase ${
-                      p.status === 'active'
-                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {p.status}
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                        p.status === 'active'
+                          ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {p.status}
+                      </span>
+                      {p.note_moderation === 'approved' ? (
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+                          <CheckCircle2 className="h-2.5 w-2.5" /> Acknowledged by Student
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase bg-amber-500/10 text-amber-600 border border-amber-500/30">
+                          <Clock className="h-2.5 w-2.5" /> Awaiting Acknowledgment
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Institution & Days */}
@@ -289,7 +326,7 @@ export default function SponsorDashboardPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+                  <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border/50">
                     {p.status === 'active' ? (
                       <Button
                         size="sm"
@@ -321,6 +358,40 @@ export default function SponsorDashboardPage() {
                           Fulfill Now
                         </Button>
                       </Link>
+                    )}
+
+                    {/* Unacknowledged or inactive pledges can be deleted */}
+                    {p.note_moderation !== 'approved' && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full font-mono text-xs h-8 px-3 border-red-500/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            title="Delete unacknowledged pledge"
+                          >
+                            <Trash2 className="mr-1 h-3 w-3" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete this unacknowledged pledge?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This pledge has not yet been acknowledged by the student. Deleting it will permanently retract your pledge commitment.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeletePledge(p.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Delete Pledge
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
                   </div>
                 </div>

@@ -13,8 +13,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Heart, Loader2, Pause, Play, XCircle, Calendar, TrendingUp,
-  Mail, Bell, Clock, CheckCircle2, AlertCircle, MessageCircle,
+  Mail, Bell, Clock, CheckCircle2, AlertCircle, MessageCircle, Trash2,
 } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { openWhatsAppPledgeReminder } from '@/lib/whatsapp';
 import {
   formatNaira, formatDate, projectPledgeAmount, daysUntilDeadline,
@@ -83,6 +88,22 @@ export default function PledgesPage() {
     const { error } = await supabase.from('pledges').update({ status }).eq('id', pledgeId);
     if (error) { toast.error('Failed to update pledge'); return; }
     toast.success(`Pledge ${status}`);
+    loadPledges();
+  };
+
+  const acknowledgePledge = async (pledgeId: string) => {
+    const { error } = await supabase.from('pledges').update({ note_moderation: 'approved' }).eq('id', pledgeId);
+    if (error) { toast.error('Failed to acknowledge pledge: ' + error.message); return; }
+    toast.success('Pledge acknowledged and confirmed!');
+    loadPledges();
+  };
+
+  const deletePledge = async (pledgeId: string) => {
+    const { error } = await supabase.from('pledges').delete().eq('id', pledgeId);
+    if (error) {
+      await supabase.from('pledges').update({ status: 'cancelled' }).eq('id', pledgeId);
+    }
+    toast.success('Pledge deleted');
     loadPledges();
   };
 
@@ -217,7 +238,15 @@ export default function PledgesPage() {
                 {list.length === 0 ? (
                   <Card className="card-3d"><CardContent className="py-8 text-center text-sm text-muted-foreground">No {tab} pledges.</CardContent></Card>
                 ) : (
-                  list.map((p) => <PledgeCard key={p.id} pledge={p} onStatusChange={updatePledgeStatus} />)
+                  list.map((p) => (
+                    <PledgeCard
+                      key={p.id}
+                      pledge={p}
+                      onStatusChange={updatePledgeStatus}
+                      onAcknowledge={acknowledgePledge}
+                      onDelete={deletePledge}
+                    />
+                  ))
                 )}
               </TabsContent>
             );
@@ -246,7 +275,17 @@ export default function PledgesPage() {
   );
 }
 
-function PledgeCard({ pledge, onStatusChange }: { pledge: PledgeWithGoal; onStatusChange: (id: string, status: PledgeStatus) => void }) {
+function PledgeCard({
+  pledge,
+  onStatusChange,
+  onAcknowledge,
+  onDelete,
+}: {
+  pledge: PledgeWithGoal;
+  onStatusChange: (id: string, status: PledgeStatus) => void;
+  onAcknowledge: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
   const [showSchedule, setShowSchedule] = useState(false);
   const { projectedAmountKobo, projectedCount, scheduledDates } = projectPledgeAmount({
     amountPerKobo: pledge.amount_per_kobo,
@@ -283,7 +322,18 @@ function PledgeCard({ pledge, onStatusChange }: { pledge: PledgeWithGoal; onStat
               )}
             </div>
           </div>
-          <Badge variant={pledge.status === 'active' ? 'default' : 'secondary'}>{pledge.status}</Badge>
+          <div className="flex flex-col items-end gap-1.5">
+            <Badge variant={pledge.status === 'active' ? 'default' : 'secondary'}>{pledge.status}</Badge>
+            {pledge.note_moderation === 'approved' ? (
+              <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600 bg-emerald-500/10">
+                ✓ Confirmed
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 bg-amber-500/10">
+                Awaiting Acknowledgment
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Projection */}
@@ -322,6 +372,17 @@ function PledgeCard({ pledge, onStatusChange }: { pledge: PledgeWithGoal; onStat
 
         {/* Actions */}
         <div className="mt-3 flex flex-wrap gap-2">
+          {pledge.note_moderation !== 'approved' && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-emerald-600/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              onClick={() => onAcknowledge(pledge.id)}
+            >
+              <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+              Acknowledge Pledge
+            </Button>
+          )}
           {pledge.status === 'active' && (
             <>
               <Button
@@ -361,6 +422,37 @@ function PledgeCard({ pledge, onStatusChange }: { pledge: PledgeWithGoal; onStat
           <Button size="sm" variant="ghost" onClick={() => setShowSchedule(!showSchedule)}>
             <Clock className="mr-1.5 h-3.5 w-3.5" /> {showSchedule ? 'Hide' : 'Show'} schedule
           </Button>
+
+          {/* Delete Pledge action */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-red-500/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this pledge?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete this pledge record from the system.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(pledge.id)}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete Pledge
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>

@@ -13,8 +13,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Target, TrendingUp, CalendarClock, Heart, Plus, Share2,
   AlertCircle, CheckCircle2, Loader2, ArrowRight, BookOpen, Home, GraduationCap,
-  Clock, Sparkles, ShieldCheck, ArrowUpRight,
+  Clock, Sparkles, ShieldCheck, ArrowUpRight, Trash2,
 } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import {
   computeFundingSummary, formatNaira, formatNairaShort, daysUntilDeadline,
   readinessLabel, readinessColor, projectPledgeAmount,
@@ -83,6 +89,16 @@ export default function DashboardPage() {
     setGoals(goalsWithStats);
     setLoading(false);
   }, [user, supabase]);
+
+  const handleDeleteGoal = async (goalId: string) => {
+    const { error } = await supabase.from('education_goals').delete().eq('id', goalId);
+    if (error) {
+      toast.error('Failed to delete goal: ' + error.message);
+      return;
+    }
+    toast.success('Goal deleted successfully');
+    loadGoals();
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -351,6 +367,35 @@ export default function DashboardPage() {
                           </Button>
                         </Link>
                       )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-full font-mono text-xs h-9 px-3 border-red-500/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            title="Delete goal"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete &quot;{goal.title}&quot; permanently?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently remove this goal along with all associated contributions and pledges. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteGoal(goal.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              Delete Goal
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 );
