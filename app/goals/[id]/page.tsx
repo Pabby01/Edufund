@@ -182,21 +182,23 @@ export default function GoalDetailPage() {
   const approvedNotes = notes.filter((n) => n.moderation_status === 'approved');
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border/60 pb-6">
         <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Badge variant={goal.visibility === 'published' ? 'default' : 'secondary'}>
-              {goal.visibility === 'published' ? 'Published' : goal.visibility === 'archived' ? 'Archived' : 'Draft'}
-            </Badge>
-            <Badge variant="outline">{categoryLabels[goal.category]}</Badge>
-            <span className={`text-sm font-medium ${readinessColor(summary.readiness)}`}>
-              {readinessLabel(summary.readiness)}
+          <div className="mb-2 flex items-center gap-2 font-mono">
+            <span className="stamp text-[9px]">
+              {goal.visibility === 'published' ? 'PUBLISHED' : goal.visibility === 'archived' ? 'ARCHIVED' : 'DRAFT'}
+            </span>
+            <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[10px] text-muted-foreground font-semibold">
+              {categoryLabels[goal.category]}
+            </span>
+            <span className={`text-xs font-bold ${readinessColor(summary.readiness)}`}>
+              ● {readinessLabel(summary.readiness)}
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{goal.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{goal.institution} · {goal.session}</p>
+          <h1 className="font-display text-2xl font-black tracking-tight sm:text-4xl text-foreground">{goal.title}</h1>
+          <p className="mt-1 text-sm text-muted-foreground font-mono">{goal.institution} · {goal.session}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>

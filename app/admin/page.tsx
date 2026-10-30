@@ -90,13 +90,19 @@ export default function AdminPage() {
   const hiddenNotes = notes.filter((n) => n.moderation_status === 'hidden');
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Top Header */}
+      <div className="mb-8 border-b border-border/60 pb-6">
+        <div className="eyebrow mb-2">
+          SYSTEM AUDIT & MODERATION
+        </div>
         <div className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-brand-blue" />
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <h1 className="display-md text-foreground">Admin & Verification Registry</h1>
         </div>
-        <p className="mt-1 text-muted-foreground">Demo operator overview — campaigns, contributions, pledges, and moderation.</p>
+        <p className="mt-1 text-sm text-muted-foreground font-mono">
+          Demo operator overview — campaigns, Remita disbursements, sponsor pledges, and message moderation.
+        </p>
       </div>
 
       {/* Overview stats */}

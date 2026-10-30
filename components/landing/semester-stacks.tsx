@@ -85,7 +85,7 @@ const bundles: SemesterBundle[] = [
 
 export function SemesterStacks() {
   return (
-    <section id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10 overflow-clip">
+    <section id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10">
       <div className="relative mx-auto max-w-7xl">
         {/* Section Heading */}
         <div className="grid gap-6 lg:grid-cols-12 items-end pb-16">
@@ -120,18 +120,18 @@ export function SemesterStacks() {
         </div>
 
         {/* The Overlapping Stacking Cards (Deck of cards slide-over effect) */}
-        <div className="relative pb-24">
+        <div className="relative pb-36">
           {bundles.map((bundle, idx) => (
             <div
               key={bundle.index}
-              className="sticky transition-transform duration-300 mb-16 sm:mb-24 last:mb-0"
+              className="sticky transition-all duration-300 mb-32 sm:mb-48 last:mb-10 will-change-transform"
               style={{
-                top: `${80 + idx * 28}px`,
-                zIndex: idx + 10,
+                top: `${96 + idx * 36}px`,
+                zIndex: 10 + idx,
               }}
             >
               <div
-                className={`rounded-3xl border p-6 sm:p-10 shadow-[0_-15px_40px_rgba(0,0,0,0.6)] ${bundle.bgClass}`}
+                className={`rounded-[32px] sm:rounded-[40px] border p-6 sm:p-12 shadow-[0_-25px_60px_rgba(0,0,0,0.7)] backdrop-blur-md ${bundle.bgClass}`}
               >
                 <div className="grid gap-8 lg:grid-cols-12 items-center">
                   {/* Left Column: Stack Narrative */}

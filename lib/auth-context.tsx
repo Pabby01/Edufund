@@ -18,6 +18,22 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function syncAuthCookies(session: Session | null) {
+  if (typeof document === 'undefined') return;
+  if (session?.access_token) {
+    const maxAge = 60 * 60 * 24 * 7; // 7 days
+    document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    document.cookie = `edufund-auth=1; path=/; max-age=${maxAge}; SameSite=Lax`;
+    if (session.refresh_token) {
+      document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    }
+  } else {
+    document.cookie = 'sb-access-token=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'edufund-auth=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'sb-refresh-token=; path=/; max-age=0; SameSite=Lax';
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = getSupabaseClient();
   const [session, setSession] = useState<Session | null>(null);
@@ -47,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
+      syncAuthCookies(session);
       if (session?.user) {
         loadProfile(session.user.id).finally(() => {
           if (mounted) setLoading(false);
@@ -60,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (async () => {
         setSession(session);
         setUser(session?.user ?? null);
+        syncAuthCookies(session);
         if (session?.user) {
           await loadProfile(session.user.id);
         } else {
@@ -76,7 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase, loadProfile]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    if (data?.session) {
+      syncAuthCookies(data.session);
+    }
     return { error: error?.message ?? null };
   }, [supabase]);
 
@@ -87,6 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: { data: { display_name: displayName } },
     });
     if (error) return { error: error.message };
+    if (data?.session) {
+      syncAuthCookies(data.session);
+    }
     if (data.user) {
       const { error: profileError } = await supabase
         .from('profiles')
@@ -99,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   const signOut = useCallback(async () => {
+    syncAuthCookies(null);
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);

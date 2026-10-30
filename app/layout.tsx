@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from '@/lib/theme-context';
-import { Navbar } from '@/components/navbar';
+import { AppShell } from '@/components/app-shell';
 import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
@@ -46,8 +46,7 @@ export default function RootLayout({
       <body className="min-h-screen selection:bg-brand-gold/30">
         <ThemeProvider>
           <AuthProvider>
-            <Navbar />
-            <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            <AppShell>{children}</AppShell>
             <Toaster />
           </AuthProvider>
         </ThemeProvider>

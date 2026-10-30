@@ -13,7 +13,6 @@ import { StudioStory } from '@/components/landing/studio-story';
 import { FreeGuide } from '@/components/landing/free-guide';
 import { FAQSection } from '@/components/landing/faq-section';
 import { CTABanner } from '@/components/landing/cta-banner';
-import { Footer } from '@/components/footer';
 
 export default function LandingPage() {
   return (
@@ -53,9 +52,6 @@ export default function LandingPage() {
 
       {/* Closing Call to Action Banner */}
       <CTABanner />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

@@ -108,55 +108,80 @@ export default function PledgesPage() {
     : pledges;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Pledges</h1>
-        <p className="mt-1 text-muted-foreground">Manage sponsor pledges and reminder schedules.</p>
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Top Header */}
+      <div className="mb-8 border-b border-border/60 pb-6">
+        <div className="eyebrow mb-2">
+          SPONSOR COMMITMENTS & PLEDGE CIRCLE
+        </div>
+        <h1 className="display-md text-foreground">
+          Pledges & Scheduled Commitments
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground font-mono">
+          Track recurring sponsor commitments, pause or resume reminder cadences, and review pledges.
+        </p>
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <Card className="card-3d">
+      <div className="mb-8 grid gap-4 sm:grid-cols-3 font-mono">
+        <Card className="rounded-2xl border border-border bg-card p-2 shadow-xs">
           <CardContent className="py-4">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Active pledges</span>
               <Heart className="h-4 w-4 text-brand-blue" />
-              <span className="text-sm text-muted-foreground">Active pledges</span>
             </div>
-            <div className="text-xl font-bold">{activePledges.length}</div>
+            <div className="text-2xl font-black text-foreground">{activePledges.length}</div>
           </CardContent>
         </Card>
-        <Card className="card-3d">
+        <Card className="rounded-2xl border border-border bg-card p-2 shadow-xs">
           <CardContent className="py-4">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Total projected</span>
               <TrendingUp className="h-4 w-4 text-brand-gold" />
-              <span className="text-sm text-muted-foreground">Total projected</span>
             </div>
-            <div className="text-xl font-bold">{formatNaira(totalProjected)}</div>
+            <div className="text-2xl font-black text-foreground">{formatNaira(totalProjected)}</div>
           </CardContent>
         </Card>
-        <Card className="card-3d">
+        <Card className="rounded-2xl border border-border bg-card p-2 shadow-xs">
           <CardContent className="py-4">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Paused / Cancelled</span>
               <Pause className="h-4 w-4 text-amber-500" />
-              <span className="text-sm text-muted-foreground">Paused / Cancelled</span>
             </div>
-            <div className="text-xl font-bold">{pausedPledges.length + cancelledPledges.length}</div>
+            <div className="text-2xl font-black text-foreground">{pausedPledges.length + cancelledPledges.length}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Email filter for sponsor view */}
-      <Card className="card-3d mb-6">
+      <Card className="rounded-2xl border border-border bg-card p-2 mb-8 shadow-xs">
         <CardContent className="py-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-1">
-              <Label htmlFor="emailFilter" className="text-sm">Filter by sponsor email</Label>
-              <Input id="emailFilter" type="email" placeholder="sponsor@example.com" value={filterEmail} onChange={(e) => setFilterEmail(e.target.value)} />
+              <Label htmlFor="emailFilter" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                Filter by sponsor email
+              </Label>
+              <Input
+                id="emailFilter"
+                type="email"
+                placeholder="sponsor@example.com"
+                value={filterEmail}
+                onChange={(e) => setFilterEmail(e.target.value)}
+                className="font-mono text-xs h-10"
+              />
             </div>
-            <Button onClick={applyEmailFilter} variant="outline">Filter</Button>
-            {appliedEmail && <Button variant="ghost" onClick={() => { setAppliedEmail(''); setFilterEmail(''); }}>Clear</Button>}
+            <Button onClick={applyEmailFilter} variant="outline" className="rounded-full font-mono text-xs h-10 px-5">
+              Filter
+            </Button>
+            {appliedEmail && (
+              <Button variant="ghost" onClick={() => { setAppliedEmail(''); setFilterEmail(''); }} className="rounded-full font-mono text-xs h-10">
+                Clear
+              </Button>
+            )}
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Sponsors can manage their own pledges by entering their email here.</p>
+          <p className="mt-2 text-xs text-muted-foreground font-mono">
+            Sponsors can manage their own pledge frequencies by entering their email address.
+          </p>
         </CardContent>
       </Card>
 
