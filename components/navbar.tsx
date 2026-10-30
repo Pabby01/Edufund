@@ -227,9 +227,10 @@ export function Navbar() {
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/goals/new">
-                <Button size="sm" className="rounded-full gradient-bg-blue text-white font-bold h-9 px-4 shadow-sm">
-                  <Target className="mr-1.5 h-3.5 w-3.5" />
-                  New goal
+                <Button size="sm" className="rounded-full gradient-bg-blue text-white font-bold h-8 sm:h-9 px-3 sm:px-4 shadow-sm text-xs sm:text-sm">
+                  <Target className="mr-1 sm:mr-1.5 h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">New goal</span>
+                  <span className="xs:hidden">Goal</span>
                 </Button>
               </Link>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden md:flex rounded-full text-xs">
@@ -237,15 +238,16 @@ export function Navbar() {
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Link href="/auth?mode=signin">
-                <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold px-3 h-8">
+                <Button variant="ghost" size="sm" className="rounded-full text-xs font-semibold px-2.5 sm:px-3 h-8">
                   Sign in
                 </Button>
               </Link>
               <Link href="/auth?mode=signup">
-                <Button size="sm" className="rounded-full gradient-bg-blue text-white font-bold text-xs h-8 px-4 shadow-sm">
-                  Start an education goal
+                <Button size="sm" className="rounded-full gradient-bg-blue text-white font-bold text-xs h-8 px-2.5 sm:px-4 shadow-sm">
+                  <span className="hidden sm:inline">Start an education goal</span>
+                  <span className="sm:hidden">Start</span>
                 </Button>
               </Link>
             </div>

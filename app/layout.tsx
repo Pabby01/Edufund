@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner';
 export const metadata: Metadata = {
   // NEXT_PUBLIC_SITE_URL should be set to the deployed origin (e.g. https://edufund.example).
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
   title: 'EduFund — Every semester funded, before the deadline',
   description:
     'EduFund helps Nigerian university students and their sponsors plan, save towards, and collectively fund school fees and accommodation before payment deadlines.',
@@ -31,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

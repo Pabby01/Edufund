@@ -28,7 +28,7 @@ export function WordReveal({
   accentClassName?: string;
 }) {
   const ref = useRef<HTMLHeadingElement>(null);
-  const inView = useInView(ref, { once: true, margin: '0px 0px -12% 0px' });
+  const inView = useInView(ref, { once: true, margin: '200px 0px 100px 0px' });
   const reduce = useReducedMotion();
   let wordIndex = 0;
 
@@ -44,9 +44,9 @@ export function WordReveal({
               <span key={wi} className="inline-block overflow-hidden pb-[0.08em] -mb-[0.08em] align-bottom">
                 <motion.span
                   className={cn('inline-block', accent && accentClassName)}
-                  initial={reduce ? false : { y: '110%', rotate: 4 }}
-                  animate={inView ? { y: '0%', rotate: 0 } : undefined}
-                  transition={{ duration: 0.9, ease: EASE_OUT, delay: delay + i * 0.06 }}
+                  initial={reduce ? false : { y: '110%', rotate: 3 }}
+                  animate={inView ? { y: '0%', rotate: 0 } : { y: '0%', rotate: 0 }}
+                  transition={{ duration: 0.8, ease: EASE_OUT, delay: delay + i * 0.05 }}
                 >
                   {word}
                 </motion.span>

@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   ChevronRight,
   User,
+  Users,
 } from 'lucide-react';
 import {
   Sheet,
@@ -38,7 +39,6 @@ export function DashboardSidebar() {
   const { user, profile, signOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -50,6 +50,7 @@ export function DashboardSidebar() {
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
     { name: 'New Goal', href: '/goals/new', icon: Target, exact: true },
     { name: 'Pledge Circle', href: '/pledges', icon: Heart, exact: false },
+    { name: 'Sponsor Hub', href: '/sponsor', icon: ShieldCheck, exact: false },
     { name: 'Settings & Profile', href: '/settings', icon: Settings, exact: false },
   ];
 
@@ -59,6 +60,7 @@ export function DashboardSidebar() {
 
   const secondaryNav = [
     { name: 'Public Registry', href: '/explore', icon: Compass },
+    { name: 'Alumni Squads', href: '/squads', icon: Users },
     { name: 'Semester Stacks', href: '/stacks', icon: Layers },
     { name: 'How It Works', href: '/how-it-works', icon: BookOpen },
     { name: 'Help & Support', href: '/support', icon: HelpCircle },
@@ -131,7 +133,6 @@ export function DashboardSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
                 className={cn(
                   'flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all',
                   active
@@ -151,7 +152,7 @@ export function DashboardSidebar() {
 
         {/* Quick Start Goal Pill */}
         <div className="px-1 pt-1">
-          <Link href="/goals/new" onClick={() => setMobileOpen(false)}>
+          <Link href="/goals/new">
             <Button size="sm" className="w-full rounded-xl gradient-bg-blue text-white font-bold text-xs h-9 shadow-xs">
               <Target className="mr-1.5 h-3.5 w-3.5" />
               Start New Goal
@@ -170,7 +171,6 @@ export function DashboardSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -203,39 +203,37 @@ export function DashboardSidebar() {
   );
 
   return (
-    <>
-      {/* 1. Desktop Fixed Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 xl:w-72 border-r border-border/60 bg-card/95 backdrop-blur-xl lg:flex flex-col">
-        {sidebarContent}
-      </aside>
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 xl:w-72 border-r border-border/60 bg-card/95 backdrop-blur-xl lg:flex flex-col">
+      {sidebarContent}
+    </aside>
+  );
+}
 
-      {/* 2. Mobile / Tablet Top Header with Drawer Trigger */}
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/60 bg-card/95 px-4 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center gap-2">
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
-              {sidebarContent}
-            </SheetContent>
-          </Sheet>
-          <EduFundLogo size={28} />
-        </div>
+export function DashboardMobileHeader() {
+  const { user, profile } = useAuth();
+  const initials = (profile?.display_name || user?.email || 'Student')
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
-        <div className="flex items-center gap-2">
-          <Link href="/goals/new">
-            <Button size="sm" className="h-8 rounded-full gradient-bg-blue text-white text-xs font-bold px-3">
-              <Target className="mr-1 h-3 w-3" />
-              New Goal
-            </Button>
-          </Link>
-          <ThemeToggle />
-        </div>
-      </header>
-    </>
+  return (
+    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-border/60 bg-card/95 px-4 backdrop-blur-xl lg:hidden">
+      <Link href="/dashboard" className="flex items-center gap-2">
+        <EduFundLogo size={28} />
+        <span className="font-mono text-[10px] font-bold text-brand-blue uppercase bg-brand-blue/10 px-2 py-0.5 rounded-full">
+          PORTAL
+        </span>
+      </Link>
+
+      <div className="flex items-center gap-2.5">
+        <ThemeToggle />
+        <Link href="/settings" className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-blue text-white font-mono font-bold text-[11px] shadow-xs">
+          {initials}
+        </Link>
+      </div>
+    </header>
   );
 }
 

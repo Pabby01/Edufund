@@ -18,7 +18,7 @@ export function MarqueeRibbon() {
   const loopList = [...ribbonEvents, ...ribbonEvents];
 
   return (
-    <div className="relative overflow-hidden border-y border-dashed border-border/80 bg-neutral-900 dark:bg-black py-3 font-mono text-xs text-neutral-200 select-none">
+    <div className="relative overflow-hidden w-full max-w-full border-y border-dashed border-border/80 bg-neutral-900 dark:bg-black py-3 font-mono text-xs text-neutral-200 select-none">
       <div className="flex w-max animate-marquee gap-8 whitespace-nowrap">
         {loopList.map((item, idx) => (
           <div key={idx} className="flex items-center gap-3">

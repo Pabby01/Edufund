@@ -169,7 +169,7 @@ export function Footer() {
       </div>
 
       {/* GIGANTIC WATERMARK TEXT (Image 2 Shelfline style) */}
-      <div className="w-full overflow-hidden select-none pointer-events-none leading-none -mb-6 sm:-mb-10 md:-mb-14">
+      <div className="w-full max-w-full overflow-hidden select-none pointer-events-none leading-none -mb-6 sm:-mb-10 md:-mb-14">
         <div className="font-display font-black text-[22vw] tracking-tighter text-white/[0.04] text-center uppercase whitespace-nowrap">
           EduFund
         </div>

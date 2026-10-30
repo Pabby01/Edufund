@@ -13,8 +13,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Heart, Loader2, Pause, Play, XCircle, Calendar, TrendingUp,
-  Mail, Bell, Clock, CheckCircle2, AlertCircle,
+  Mail, Bell, Clock, CheckCircle2, AlertCircle, MessageCircle,
 } from 'lucide-react';
+import { openWhatsAppPledgeReminder } from '@/lib/whatsapp';
 import {
   formatNaira, formatDate, projectPledgeAmount, daysUntilDeadline,
 } from '@/lib/finance';
@@ -323,6 +324,24 @@ function PledgeCard({ pledge, onStatusChange }: { pledge: PledgeWithGoal; onStat
         <div className="mt-3 flex flex-wrap gap-2">
           {pledge.status === 'active' && (
             <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-emerald-600/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                onClick={() => openWhatsAppPledgeReminder({
+                  sponsorName: pledge.sponsor_name,
+                  studentName: pledge.goal.public_display_name || 'Student',
+                  goalTitle: pledge.goal.title,
+                  institution: pledge.goal.institution,
+                  amountKobo: pledge.amount_per_kobo,
+                  frequency: pledge.frequency,
+                  daysRemaining: daysLeft,
+                  url: `${window.location.origin}/fund/${pledge.goal.public_slug || ''}`,
+                })}
+              >
+                <MessageCircle className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                WhatsApp Reminder
+              </Button>
               <Button size="sm" variant="outline" onClick={() => onStatusChange(pledge.id, 'paused')}>
                 <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause
               </Button>

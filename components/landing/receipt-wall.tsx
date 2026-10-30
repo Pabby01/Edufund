@@ -95,50 +95,50 @@ export function ReceiptWall() {
           {reviews.map((rev) => (
             <motion.div
               key={rev.id}
-              whileHover={{ y: -6, rotate: 0 }}
-              className="receipt shrink-0 w-80 sm:w-96 p-6 rounded-t-lg transition-transform duration-300 font-mono text-xs text-neutral-900 snap-center select-none"
+              whileHover={{ y: -8, rotate: 0 }}
+              className="receipt-inverted shrink-0 w-80 sm:w-96 p-6 rounded-t-lg transition-transform duration-300 font-mono text-xs snap-center select-none bg-neutral-950 text-white border border-neutral-800 dark:bg-[#fbf9f5] dark:text-neutral-950 dark:border-neutral-200 shadow-2xl"
               style={{
                 transform: rev.id === '2' ? 'rotate(1deg)' : rev.id === '4' ? 'rotate(-1.5deg)' : 'rotate(-0.5deg)',
               }}
             >
               {/* Thumbtack pin on top center */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-red-600 shadow-md border-2 border-white" />
+                <div className="h-4 w-4 rounded-full bg-red-600 shadow-md border-2 border-white dark:border-neutral-900" />
               </div>
 
               {/* Receipt Header */}
-              <div className="flex items-center justify-between border-b border-dashed border-neutral-300 pb-2.5">
-                <span className="font-bold text-[10px] text-neutral-500 tracking-widest uppercase">
+              <div className="flex items-center justify-between border-b border-dashed border-neutral-800 dark:border-neutral-300 pb-2.5">
+                <span className="font-bold text-[10px] text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">
                   VERIFIED IMPACT
                 </span>
-                <span className="text-[10px] text-neutral-400 font-bold">{rev.number}</span>
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold">{rev.number}</span>
               </div>
 
               {/* 5 Stars */}
-              <div className="flex gap-1 my-3 text-amber-500">
+              <div className="flex gap-1 my-3 text-amber-400 dark:text-amber-500">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
 
               {/* Quote */}
-              <p className="font-sans text-xs sm:text-sm text-neutral-800 leading-relaxed italic mb-4">
+              <p className="font-sans text-xs sm:text-sm text-neutral-200 dark:text-neutral-800 leading-relaxed italic mb-4">
                 &ldquo;{rev.quote}&rdquo;
               </p>
 
               {/* Author Info */}
-              <div className="border-t border-dashed border-neutral-300 pt-3 flex items-center justify-between">
+              <div className="border-t border-dashed border-neutral-800 dark:border-neutral-300 pt-3 flex items-center justify-between">
                 <div>
-                  <h5 className="font-sans font-bold text-xs text-neutral-900">{rev.name}</h5>
-                  <p className="text-[10px] text-neutral-500">{rev.role}</p>
+                  <h5 className="font-sans font-bold text-xs text-white dark:text-neutral-900">{rev.name}</h5>
+                  <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{rev.role}</p>
                 </div>
-                <span className="stamp text-[9px]">{rev.tag}</span>
+                <span className="stamp-gold text-[9px]">{rev.tag}</span>
               </div>
 
               {/* Goal reference */}
-              <div className="mt-3 pt-2 border-t border-neutral-200 text-[10px] text-neutral-500 flex justify-between">
+              <div className="mt-3 pt-2 border-t border-neutral-800 dark:border-neutral-200 text-[10px] text-neutral-400 dark:text-neutral-500 flex justify-between">
                 <span>{rev.campaign}</span>
-                <span className="font-bold text-neutral-700">100% FUNDED</span>
+                <span className="font-bold text-brand-gold dark:text-brand-blue">100% FUNDED</span>
               </div>
             </motion.div>
           ))}

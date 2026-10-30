@@ -128,7 +128,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b border-border/40">
       {/* Background radial gradients and subtle grid lines */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-10 right-1/4 h-[520px] w-[520px] rounded-full bg-brand-blue/15 blur-[120px]" />
         <div className="absolute top-48 -left-20 h-[440px] w-[440px] rounded-full bg-brand-gold/15 blur-[100px]" />
         <div className="column-lines absolute inset-0 opacity-40" />
@@ -236,10 +236,10 @@ export function HeroSection() {
           </div>
 
           {/* Right Column: 3D Perspective Floating Goal Display */}
-          <div className="lg:col-span-6 flex flex-col items-center lg:items-end">
-            <div className="scene-3d w-full max-w-lg space-y-5">
+          <div className="lg:col-span-6 flex flex-col items-center lg:items-end w-full min-w-0 overflow-hidden lg:overflow-visible">
+            <div className="scene-3d w-full max-w-lg space-y-3 sm:space-y-5">
               {/* Top tier of 3D goal cards */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {heroGoals.slice(0, 3).map((goal) => {
                   const percent = Math.round((goal.raisedKobo / goal.targetKobo) * 100);
                   const isSelected = selectedGoal?.id === goal.id;
@@ -248,33 +248,33 @@ export function HeroSection() {
                     <motion.div
                       key={goal.id}
                       onClick={() => setSelectedGoal(goal)}
-                      whileHover={{ y: -8, scale: 1.04, rotateY: -4 }}
+                      whileHover={{ y: -6, scale: 1.03, rotateY: -2 }}
                       transition={{ duration: 0.35, ease: EASE_SPRING }}
                       className="cursor-pointer"
                     >
                       <div
-                        className={`preserve-3d relative h-44 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
+                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
                           isSelected ? 'ring-2 ring-brand-gold shadow-2xl' : ''
                         }`}
                         style={{
-                          transform: 'perspective(800px) rotateY(-14deg) rotateX(4deg)',
+                          transform: 'perspective(800px) rotateY(-8deg) rotateX(3deg)',
                         }}
                       >
-                        <span className={`self-start rounded px-1.5 py-0.5 text-[8px] font-black uppercase ${goal.badgeColor}`}>
+                        <span className={`self-start rounded px-1 sm:px-1.5 py-0.5 text-[7px] sm:text-[8px] font-black uppercase ${goal.badgeColor}`}>
                           {goal.badge}
                         </span>
 
                         <div className="my-auto">
-                          <h4 className="text-xs font-bold leading-tight line-clamp-2">
+                          <h4 className="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">
                             {goal.title}
                           </h4>
-                          <p className="mt-1 text-[9px] text-white/75 line-clamp-1">
+                          <p className="mt-0.5 sm:mt-1 text-[8px] sm:text-[9px] text-white/75 line-clamp-1">
                             {goal.institution.split('(')[0]}
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex justify-between text-[9px] font-bold">
+                          <div className="flex justify-between text-[8px] sm:text-[9px] font-bold">
                             <span>{formatNairaShort(goal.targetKobo)}</span>
                             <span className="text-brand-gold-light">{percent}%</span>
                           </div>
@@ -289,7 +289,7 @@ export function HeroSection() {
               </div>
 
               {/* Second tier of 3D goal cards */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {heroGoals.slice(3, 6).map((goal) => {
                   const percent = Math.round((goal.raisedKobo / goal.targetKobo) * 100);
                   const isSelected = selectedGoal?.id === goal.id;
@@ -298,33 +298,33 @@ export function HeroSection() {
                     <motion.div
                       key={goal.id}
                       onClick={() => setSelectedGoal(goal)}
-                      whileHover={{ y: -8, scale: 1.04, rotateY: -4 }}
+                      whileHover={{ y: -6, scale: 1.03, rotateY: -2 }}
                       transition={{ duration: 0.35, ease: EASE_SPRING }}
                       className="cursor-pointer"
                     >
                       <div
-                        className={`preserve-3d relative h-44 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
+                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
                           isSelected ? 'ring-2 ring-brand-gold shadow-2xl' : ''
                         }`}
                         style={{
-                          transform: 'perspective(800px) rotateY(-14deg) rotateX(4deg)',
+                          transform: 'perspective(800px) rotateY(-8deg) rotateX(3deg)',
                         }}
                       >
-                        <span className={`self-start rounded px-1.5 py-0.5 text-[8px] font-black uppercase ${goal.badgeColor}`}>
+                        <span className={`self-start rounded px-1 sm:px-1.5 py-0.5 text-[7px] sm:text-[8px] font-black uppercase ${goal.badgeColor}`}>
                           {goal.badge}
                         </span>
 
                         <div className="my-auto">
-                          <h4 className="text-xs font-bold leading-tight line-clamp-2">
+                          <h4 className="text-[11px] sm:text-xs font-bold leading-tight line-clamp-2">
                             {goal.title}
                           </h4>
-                          <p className="mt-1 text-[9px] text-white/75 line-clamp-1">
+                          <p className="mt-0.5 sm:mt-1 text-[8px] sm:text-[9px] text-white/75 line-clamp-1">
                             {goal.institution.split('(')[0]}
                           </p>
                         </div>
 
                         <div>
-                          <div className="flex justify-between text-[9px] font-bold">
+                          <div className="flex justify-between text-[8px] sm:text-[9px] font-bold">
                             <span>{formatNairaShort(goal.targetKobo)}</span>
                             <span className="text-brand-gold-light">{percent}%</span>
                           </div>

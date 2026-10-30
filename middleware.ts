@@ -13,6 +13,7 @@ const PROTECTED_PREFIXES = [
   '/goals',
   '/pledges',
   '/settings',
+  '/sponsor',
   '/admin',
 ];
 
@@ -62,6 +63,7 @@ export const config = {
     '/goals/:path*',
     '/pledges/:path*',
     '/settings/:path*',
+    '/sponsor/:path*',
     '/admin/:path*',
     '/auth',
   ],

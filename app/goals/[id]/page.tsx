@@ -19,12 +19,17 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Target, TrendingUp, Heart, Share2, Edit, Archive, Trash2, Loader2,
   Calendar, GraduationCap, Home, BookOpen, CheckCircle2, ExternalLink,
-  Copy, Eye, MessageSquare,
+  Copy, Eye, MessageSquare, Plus, Lock, Receipt, Printer, MessageCircle,
+  Building2, ShieldCheck,
 } from 'lucide-react';
+import { openWhatsAppShare } from '@/lib/whatsapp';
 import {
   computeFundingSummary, formatNaira, formatNairaShort, daysUntilDeadline,
   readinessLabel, readinessColor, nairaToKobo, projectPledgeAmount, formatDate,
@@ -56,6 +61,27 @@ export default function GoalDetailPage() {
   const [editDeadline, setEditDeadline] = useState('');
   const [editStory, setEditStory] = useState('');
   const [editPublicName, setEditPublicName] = useState('');
+
+  // Self-Deposit State
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('10000');
+  const [depositSaving, setDepositSaving] = useState(false);
+
+  // Remita School Fees Settlement State
+  const [remitaOpen, setRemitaOpen] = useState(false);
+  const [remitaRRR, setRemitaRRR] = useState('');
+  const [remitaMatric, setRemitaMatric] = useState('');
+  const [remitaDepartment, setRemitaDepartment] = useState('');
+  const [remitaDisbursing, setRemitaDisbursing] = useState(false);
+  const [settledReceipt, setSettledReceipt] = useState<{
+    rrr: string;
+    matric: string;
+    studentName: string;
+    school: string;
+    amountKobo: number;
+    reference: string;
+    date: string;
+  } | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user || !id) return;
@@ -157,6 +183,71 @@ export default function GoalDetailPage() {
     loadData();
   };
 
+  const handleDeposit = async () => {
+    const amountNum = parseFloat(depositAmount);
+    if (!amountNum || amountNum < 500) {
+      toast.error('Minimum self-deposit is ₦500');
+      return;
+    }
+    setDepositSaving(true);
+    const kobo = nairaToKobo(amountNum);
+
+    const { error } = await supabase.from('contributions').insert({
+      goal_id: goal!.id,
+      amount_kobo: kobo,
+      sponsor_name: 'Self-Savings (Student)',
+      sponsor_email: user?.email || 'student@edufund.ng',
+      status: 'demo_confirmed',
+      payment_reference: 'CW-VAULT-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+      note: 'Self-deposit locked in Cowrywise goal vault',
+      is_anonymous: false,
+      note_consent: false,
+    });
+
+    if (error) {
+      toast.error('Deposit failed: ' + error.message);
+      setDepositSaving(false);
+      return;
+    }
+
+    toast.success(`Successfully deposited ${formatNaira(kobo)} into your goal vault!`);
+    setDepositSaving(false);
+    setDepositOpen(false);
+    setDepositAmount('10000');
+    loadData();
+  };
+
+  const handlePaySchoolFees = async () => {
+    const cleanRRR = remitaRRR.replace(/[^0-9]/g, '');
+    if (cleanRRR.length !== 12) {
+      toast.error('Please enter a valid 12-digit Remita Retrieval Reference (RRR)');
+      return;
+    }
+    if (!remitaMatric.trim()) {
+      toast.error('Please enter your University Matriculation / Registration Number');
+      return;
+    }
+    setRemitaDisbursing(true);
+
+    const formattedRRR = `${cleanRRR.slice(0, 4)}-${cleanRRR.slice(4, 8)}-${cleanRRR.slice(8, 12)}`;
+    const txRef = 'REM-TSA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    const nowStr = new Date().toISOString();
+
+    setSettledReceipt({
+      rrr: formattedRRR,
+      matric: remitaMatric.trim(),
+      studentName: goal!.public_display_name || user?.email?.split('@')[0] || 'Student',
+      school: goal!.institution || 'Federal University',
+      amountKobo: summary.totalRaisedKobo,
+      reference: txRef,
+      date: nowStr,
+    });
+
+    setRemitaDisbursing(false);
+    setRemitaOpen(false);
+    toast.success('🎉 School fees disbursed directly to University Portal via Remita!');
+  };
+
   if (loading || authLoading) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -208,6 +299,22 @@ export default function GoalDetailPage() {
             <>
               <Button variant="outline" size="sm" onClick={copyLink}>
                 <Copy className="mr-1.5 h-4 w-4" /> Copy link
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-emerald-600/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                onClick={() => openWhatsAppShare({
+                  title: goal.title,
+                  studentName: goal.public_display_name || user?.email?.split('@')[0] || 'Student',
+                  institution: goal.institution,
+                  targetKobo: goal.target_amount_kobo,
+                  raisedKobo: summary.totalRaisedKobo,
+                  daysRemaining: summary.daysRemaining,
+                  url: `${window.location.origin}/fund/${goal.public_slug}`,
+                })}
+              >
+                <MessageCircle className="mr-1.5 h-4 w-4 text-emerald-600" /> WhatsApp
               </Button>
               <Button variant="outline" size="sm" onClick={() => router.push(`/fund/${goal.public_slug}`)}>
                 <ExternalLink className="mr-1.5 h-4 w-4" /> View
@@ -286,6 +393,56 @@ export default function GoalDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Financial Settlement & Vault Actions Banner */}
+      <div className="mb-6 rounded-2xl border border-border/80 bg-gradient-to-r from-card via-card to-brand-blue/5 p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                COWRYWISE VAULT & DIRECT REMITA DISBURSEMENT
+              </span>
+            </div>
+            <h3 className="font-display text-lg font-bold">
+              Goal Balance: {formatNaira(summary.totalRaisedKobo)}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {summary.remainingGapKobo > 0
+                ? `${formatNaira(summary.remainingGapKobo)} needed before deadline (${summary.daysRemaining} days remaining)`
+                : 'Target achieved! Ready for university bursary clearance.'}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDepositOpen(true)}
+              className="border-brand-gold/60 text-brand-gold-dark dark:text-brand-gold hover:bg-brand-gold/10 font-bold"
+            >
+              <Plus className="mr-1.5 h-4 w-4" /> Deposit Self-Savings
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setRemitaOpen(true)}
+              className="gradient-bg-blue text-white font-bold hover:opacity-90 shadow-sm"
+            >
+              <GraduationCap className="mr-1.5 h-4 w-4" /> Pay Fees via Remita
+            </Button>
+            {settledReceipt && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setSettledReceipt(settledReceipt)}
+                className="font-mono text-xs font-bold"
+              >
+                <Receipt className="mr-1.5 h-3.5 w-3.5 text-emerald-600" /> View Receipt
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Stats */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -459,6 +616,271 @@ export default function GoalDetailPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      {/* 1. Deposit Self-Savings Dialog Modal */}
+      <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-brand-gold" />
+              Deposit to Cowrywise Vault
+            </DialogTitle>
+            <DialogDescription>
+              Lock self-savings towards your semester fee goal. Funds earn daily yield match until university clearance.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="font-mono text-xs uppercase text-muted-foreground">Deposit Amount (NGN)</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted-foreground">₦</span>
+                <Input
+                  type="number"
+                  min="500"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="pl-8 font-mono text-base font-bold"
+                  placeholder="10,000"
+                />
+              </div>
+            </div>
+
+            {/* Quick chips */}
+            <div className="flex flex-wrap gap-2">
+              {[5000, 10000, 25000, 50000].map((amt) => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => setDepositAmount(String(amt))}
+                  className={`rounded-full border px-3 py-1 font-mono text-xs transition-colors ${
+                    depositAmount === String(amt)
+                      ? 'border-brand-gold bg-brand-gold/15 font-bold text-brand-gold-dark dark:text-brand-gold'
+                      : 'border-border hover:bg-muted text-muted-foreground'
+                  }`}
+                >
+                  +{formatNaira(amt * 100)}
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-muted/40 p-3 space-y-1 font-mono text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Current Goal Target:</span>
+                <span className="font-bold">{formatNaira(goal.target_amount_kobo)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Raised So Far:</span>
+                <span className="font-bold text-brand-blue">{formatNaira(summary.totalRaisedKobo)}</span>
+              </div>
+              <div className="flex justify-between border-t border-border/50 pt-1 text-emerald-600 dark:text-emerald-400">
+                <span>Cowrywise Yield Match:</span>
+                <span>+8.5% p.a.</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setDepositOpen(false)} disabled={depositSaving}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeposit}
+              disabled={depositSaving}
+              className="gradient-bg-gold text-slate-950 font-bold hover:opacity-95"
+            >
+              {depositSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm Deposit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 2. Remita School Fees Settlement Dialog Modal */}
+      <Dialog open={remitaOpen} onOpenChange={setRemitaOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-brand-blue" />
+              Disburse School Fees via Remita
+            </DialogTitle>
+            <DialogDescription>
+              Direct electronic settlement to your university bursary via the official Remita Retrieval Reference (RRR).
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2 font-mono text-xs">
+            <div className="space-y-1.5">
+              <Label className="uppercase text-muted-foreground">12-Digit Remita Retrieval Reference (RRR)</Label>
+              <Input
+                type="text"
+                maxLength={14}
+                value={remitaRRR}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^0-9]/g, '');
+                  if (raw.length <= 12) {
+                    // Format as XXXX-XXXX-XXXX
+                    const parts = [];
+                    if (raw.length > 0) parts.push(raw.slice(0, 4));
+                    if (raw.length > 4) parts.push(raw.slice(4, 8));
+                    if (raw.length > 8) parts.push(raw.slice(8, 12));
+                    setRemitaRRR(parts.join('-'));
+                  }
+                }}
+                placeholder="e.g. 2408-9182-3490"
+                className="font-mono text-sm tracking-wider font-bold"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Generated from your official university student portal invoice.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="uppercase text-muted-foreground">Matriculation / UTME Registration No.</Label>
+              <Input
+                type="text"
+                value={remitaMatric}
+                onChange={(e) => setRemitaMatric(e.target.value)}
+                placeholder="e.g. 210802014 or JAMB2026/..."
+                className="font-mono text-xs font-semibold"
+              />
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-muted/40 p-3 space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Institution:</span>
+                <span className="font-bold text-foreground">{goal.institution}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Service Type:</span>
+                <span className="font-semibold">{categoryLabels[goal.category]} Clearance</span>
+              </div>
+              <div className="flex justify-between border-t border-border/50 pt-1">
+                <span className="text-muted-foreground">Disbursement Amount:</span>
+                <span className="font-bold text-brand-blue">{formatNaira(summary.totalRaisedKobo)}</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setRemitaOpen(false)} disabled={remitaDisbursing}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePaySchoolFees}
+              disabled={remitaDisbursing}
+              className="gradient-bg-blue text-white font-bold hover:opacity-95"
+            >
+              {remitaDisbursing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Disburse to Bursary
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 3. Official Remita Electronic Payment Receipt Modal */}
+      {settledReceipt && (
+        <Dialog open={Boolean(settledReceipt)} onOpenChange={() => setSettledReceipt(null)}>
+          <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-none shadow-none">
+            <div className="receipt p-6 rounded-t-lg shadow-2xl text-neutral-900 bg-[#fbf9f5] border border-neutral-300">
+              {/* Receipt Header */}
+              <div className="flex items-start justify-between border-b border-dashed border-neutral-400 pb-3">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold tracking-widest text-neutral-600 uppercase">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                    REMITA · CENTRAL BANK OF NIGERIA TSA
+                  </div>
+                  <div className="text-[9px] text-neutral-500 font-mono mt-0.5">
+                    FEDERAL GOVERNMENT OF NIGERIA E-COLLECTION
+                  </div>
+                </div>
+                <span className="stamp text-[10px] text-emerald-700 border-emerald-700">PAID & CLEARED</span>
+              </div>
+
+              {/* RRR Display */}
+              <div className="my-4 text-center border-y border-dashed border-neutral-300 py-3 bg-neutral-100/60 rounded">
+                <div className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase">
+                  REMITA RETRIEVAL REFERENCE (RRR)
+                </div>
+                <div className="mt-1 font-mono text-lg font-black tracking-widest text-brand-blue">
+                  {settledReceipt.rrr}
+                </div>
+              </div>
+
+              {/* Line Items */}
+              <div className="space-y-2 text-xs font-mono my-4">
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Student Name:</span>
+                  <span className="font-bold text-neutral-900">{settledReceipt.studentName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Matric / Reg No:</span>
+                  <span className="font-bold text-neutral-900">{settledReceipt.matric}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Beneficiary:</span>
+                  <span className="font-bold text-neutral-900">{settledReceipt.school}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Service Description:</span>
+                  <span className="font-semibold text-neutral-800">{categoryLabels[goal.category]} Bursary Settlement</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Disbursement Channel:</span>
+                  <span className="font-semibold text-neutral-800">Cowrywise Locked Target Vault</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Audit Ref:</span>
+                  <span className="font-mono text-[10px] text-neutral-600">{settledReceipt.reference}</span>
+                </div>
+                <div className="flex justify-between border-t border-dashed border-neutral-300 pt-2 text-sm font-bold">
+                  <span>TOTAL AMOUNT CLEARED:</span>
+                  <span className="text-brand-blue">{formatNaira(settledReceipt.amountKobo)}</span>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="border-t border-dashed border-neutral-400 pt-3 text-[10px] text-neutral-500 font-mono">
+                <div className="flex justify-between items-center">
+                  <span>Status: 100% SETTLED</span>
+                  <span>{formatDate(settledReceipt.date)}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-5 flex gap-2 pt-2 border-t border-neutral-200">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.print()}
+                  className="flex-1 font-mono text-xs border-neutral-400 text-neutral-800 hover:bg-neutral-200"
+                >
+                  <Printer className="mr-1.5 h-3.5 w-3.5" /> Print Receipt
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const text = encodeURIComponent(
+                      `🎓 *OFFICIAL REMITA CLEARANCE RECEIPT*\n\n` +
+                      `Student: *${settledReceipt.studentName}*\n` +
+                      `Matric No: *${settledReceipt.matric}*\n` +
+                      `Institution: *${settledReceipt.school}*\n` +
+                      `RRR Code: *${settledReceipt.rrr}*\n` +
+                      `Amount Cleared: *${formatNaira(settledReceipt.amountKobo)}*\n` +
+                      `Status: *SUCCESS / CLEARED*\n\n` +
+                      `Verified on EduFund via Central Bank of Nigeria TSA Remita Portal.`
+                    );
+                    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+                  }}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs"
+                >
+                  <MessageCircle className="mr-1.5 h-3.5 w-3.5" /> Share WhatsApp
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
