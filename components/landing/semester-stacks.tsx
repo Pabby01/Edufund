@@ -30,7 +30,7 @@ const bundles: SemesterBundle[] = [
     title: 'The Freshman Launch Stack',
     tagline: 'Year 1 Undergraduate Entry',
     desc: 'Tuition, off-campus hostel deposit, and essential faculty registration fees. Everything an indigent 100L student needs to matriculate without fear of deregistration.',
-    bgClass: 'bg-[#0f2442] border-blue-500/30 text-white',
+    bgClass: 'bg-[#0c2340] border-blue-500/30 text-white',
     badgePills: ['Tuition 100L', 'Hostel Deposit', 'Faculty Dues'],
     receiptTitle: 'THE FRESHMAN STACK',
     items: [
@@ -49,7 +49,7 @@ const bundles: SemesterBundle[] = [
     title: 'The Clinical Medicine Stack',
     tagline: 'College of Medicine & Dentistry',
     desc: 'Teaching hospital school fees, clinical hostel accommodation, and medical diagnostic equipment for 400L-600L medical students.',
-    bgClass: 'bg-[#1e1b4b] border-indigo-500/30 text-white',
+    bgClass: 'bg-[#3b42ea] border-indigo-300/40 text-white',
     badgePills: ['Clinical Tuition', 'Hospital Hostel', 'Diagnostic Kit'],
     receiptTitle: 'THE CLINICAL STACK',
     items: [
@@ -68,7 +68,7 @@ const bundles: SemesterBundle[] = [
     title: 'The Finalist Capstone Stack',
     tagline: 'Graduation & Senate Clearance',
     desc: 'Final year semester school fees, research project fieldwork binding, and senate graduation clearance. Ensuring zero students drop out in their final semester.',
-    bgClass: 'bg-[#18212f] border-amber-500/30 text-white',
+    bgClass: 'bg-[#1f4e42] border-emerald-400/40 text-white',
     badgePills: ['Final Semester Fee', 'Research Binding', 'Senate Clearance'],
     receiptTitle: 'THE FINALIST STACK',
     items: [
@@ -85,7 +85,7 @@ const bundles: SemesterBundle[] = [
 
 export function SemesterStacks() {
   return (
-    <section id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10 overflow-hidden">
+    <section id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10 overflow-clip">
       <div className="relative mx-auto max-w-7xl">
         {/* Section Heading */}
         <div className="grid gap-6 lg:grid-cols-12 items-end pb-16">
@@ -119,107 +119,111 @@ export function SemesterStacks() {
           </div>
         </div>
 
-        {/* Overlapping Stacking Cards Container */}
-        <div className="relative space-y-12">
+        {/* The Overlapping Stacking Cards (Deck of cards slide-over effect) */}
+        <div className="relative pb-24">
           {bundles.map((bundle, idx) => (
             <div
               key={bundle.index}
-              className={`sticky rounded-3xl border p-6 sm:p-10 shadow-2xl transition-all duration-300 ${bundle.bgClass}`}
+              className="sticky transition-transform duration-300 mb-16 sm:mb-24 last:mb-0"
               style={{
-                top: `${80 + idx * 24}px`,
+                top: `${80 + idx * 28}px`,
                 zIndex: idx + 10,
               }}
             >
-              <div className="grid gap-8 lg:grid-cols-12 items-center">
-                {/* Left Column: Stack Narrative */}
-                <div className="lg:col-span-7 space-y-5">
-                  <div className="flex items-center gap-3 font-mono">
-                    <span className="text-xs font-bold tracking-widest text-brand-gold uppercase">
-                      {bundle.index} / {bundle.total}
-                    </span>
-                    <span className="rounded-full border border-white/20 bg-white/10 px-3 py-0.5 text-[11px] font-semibold">
-                      {bundle.tagline}
-                    </span>
-                  </div>
-
-                  <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-                    {bundle.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base text-white/80 leading-relaxed max-w-xl">
-                    {bundle.desc}
-                  </p>
-
-                  {/* Badge Pills */}
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {bundle.badgePills.map((pill) => (
-                      <span
-                        key={pill}
-                        className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm"
-                      >
-                        {pill}
+              <div
+                className={`rounded-3xl border p-6 sm:p-10 shadow-[0_-15px_40px_rgba(0,0,0,0.6)] ${bundle.bgClass}`}
+              >
+                <div className="grid gap-8 lg:grid-cols-12 items-center">
+                  {/* Left Column: Stack Narrative */}
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="flex items-center gap-3 font-mono">
+                      <span className="text-xs font-bold tracking-widest text-brand-gold uppercase">
+                        {bundle.index} / {bundle.total}
                       </span>
-                    ))}
-                  </div>
-
-                  {/* Action Button */}
-                  <div className="pt-2">
-                    <PillButton href="/auth?mode=signup" variant="gold" icon={Heart}>
-                      Sponsor this stack
-                    </PillButton>
-                  </div>
-                </div>
-
-                {/* Right Column: Perforated Receipt Paper */}
-                <div className="lg:col-span-5 flex justify-center">
-                  <div className="receipt w-full max-w-md rounded-t-lg p-6 font-mono text-xs shadow-2xl text-neutral-900">
-                    {/* Receipt Header */}
-                    <div className="flex items-start justify-between border-b border-dashed border-neutral-300 pb-3">
-                      <div>
-                        <div className="font-bold tracking-widest text-[10px] text-neutral-500 uppercase">
-                          {bundle.receiptTitle}
-                        </div>
-                        <div className="text-[9px] text-neutral-400">
-                          VERIFIED NIGERIAN BUNDLE · 3 ITEMS
-                        </div>
-                      </div>
-                      <span className="stamp text-[10px]">EDUFUND</span>
+                      <span className="rounded-full border border-white/20 bg-white/10 px-3 py-0.5 text-[11px] font-semibold">
+                        {bundle.tagline}
+                      </span>
                     </div>
 
-                    {/* Receipt Items */}
-                    <div className="my-4 space-y-2">
-                      {bundle.items.map((item, i) => (
-                        <div key={i} className="flex justify-between text-[11px]">
-                          <span className="text-neutral-700">{item.name}</span>
-                          <span className="font-bold">{formatNaira(item.amount)}</span>
-                        </div>
+                    <h3 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                      {bundle.title}
+                    </h3>
+
+                    <p className="text-sm sm:text-base text-white/80 leading-relaxed max-w-xl">
+                      {bundle.desc}
+                    </p>
+
+                    {/* Badge Pills */}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {bundle.badgePills.map((pill) => (
+                        <span
+                          key={pill}
+                          className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm"
+                        >
+                          {pill}
+                        </span>
                       ))}
                     </div>
 
-                    {/* Calculations */}
-                    <div className="border-t border-dashed border-neutral-300 pt-3 space-y-1.5">
-                      <div className="flex justify-between text-neutral-500 text-[10px]">
-                        <span>Subtotal</span>
-                        <span>{formatNaira(bundle.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between text-emerald-600 font-bold text-[10px]">
-                        <span>Cowrywise Yield / Match</span>
-                        <span>-{formatNaira(bundle.cowrywiseMatch)}</span>
-                      </div>
-                      <div className="flex items-center justify-between border-t border-neutral-300 pt-2 text-sm font-black text-neutral-900">
-                        <span>COMMUNITY TARGET</span>
-                        <span className="text-base font-extrabold text-neutral-950">
-                          {formatNaira(bundle.finalTarget)}
-                        </span>
-                      </div>
+                    {/* Action Button */}
+                    <div className="pt-2">
+                      <PillButton href="/auth?mode=signup" variant="gold" icon={Heart}>
+                        Sponsor this stack
+                      </PillButton>
                     </div>
+                  </div>
 
-                    {/* Stamp bottom */}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="stamp-gold text-[9px] font-bold">
-                        {bundle.saveBadge}
-                      </span>
-                      <span className="text-[9px] text-neutral-400">TERMS APPLY</span>
+                  {/* Right Column: Perforated Receipt Paper */}
+                  <div className="lg:col-span-5 flex justify-center">
+                    <div className="receipt w-full max-w-md rounded-t-lg p-6 font-mono text-xs shadow-2xl text-neutral-900">
+                      {/* Receipt Header */}
+                      <div className="flex items-start justify-between border-b border-dashed border-neutral-300 pb-3">
+                        <div>
+                          <div className="font-bold tracking-widest text-[10px] text-neutral-500 uppercase">
+                            {bundle.receiptTitle}
+                          </div>
+                          <div className="text-[9px] text-neutral-400">
+                            VERIFIED NIGERIAN BUNDLE · 3 ITEMS
+                          </div>
+                        </div>
+                        <span className="stamp text-[10px]">EDUFUND</span>
+                      </div>
+
+                      {/* Receipt Items */}
+                      <div className="my-4 space-y-2">
+                        {bundle.items.map((item, i) => (
+                          <div key={i} className="flex justify-between text-[11px]">
+                            <span className="text-neutral-700">{item.name}</span>
+                            <span className="font-bold">{formatNaira(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Calculations */}
+                      <div className="border-t border-dashed border-neutral-300 pt-3 space-y-1.5">
+                        <div className="flex justify-between text-neutral-500 text-[10px]">
+                          <span>Subtotal</span>
+                          <span>{formatNaira(bundle.subtotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-emerald-600 font-bold text-[10px]">
+                          <span>Cowrywise Yield / Match</span>
+                          <span>-{formatNaira(bundle.cowrywiseMatch)}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-t border-neutral-300 pt-2 text-sm font-black text-neutral-900">
+                          <span>COMMUNITY TARGET</span>
+                          <span className="text-base font-extrabold text-neutral-950">
+                            {formatNaira(bundle.finalTarget)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stamp bottom */}
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="stamp-gold text-[9px] font-bold">
+                          {bundle.saveBadge}
+                        </span>
+                        <span className="text-[9px] text-neutral-400">TERMS APPLY</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -231,4 +235,3 @@ export function SemesterStacks() {
     </section>
   );
 }
-
