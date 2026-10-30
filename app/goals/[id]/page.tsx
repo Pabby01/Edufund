@@ -26,9 +26,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Target, TrendingUp, Heart, Share2, Edit, Archive, Trash2, Loader2,
   Calendar, GraduationCap, Home, BookOpen, CheckCircle2, ExternalLink,
-  Copy, Eye, MessageSquare, Plus, Lock, Receipt, Printer, MessageCircle,
-  Building2, ShieldCheck,
+  Copy, Eye, MessageSquare, Plus, Lock, Receipt, MessageCircle,
+  Building2, ShieldCheck, Download,
 } from 'lucide-react';
+import { downloadReceiptAsImage } from '@/lib/receipt-download';
 import { openWhatsAppShare } from '@/lib/whatsapp';
 import {
   computeFundingSummary, formatNaira, formatNairaShort, daysUntilDeadline,
@@ -916,11 +917,22 @@ export default function GoalDetailPage() {
               <div className="mt-5 flex gap-2 pt-2 border-t border-neutral-200">
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="flex-1 font-mono text-xs border-neutral-400 text-neutral-800 hover:bg-neutral-200"
+                  onClick={() => {
+                    downloadReceiptAsImage({
+                      reference: settledReceipt.rrr,
+                      payerName: settledReceipt.studentName,
+                      matricNumber: settledReceipt.matric,
+                      beneficiarySchool: settledReceipt.school,
+                      purpose: `School Fees Clearance (${goal?.title || 'Tuition'})`,
+                      amountKobo: settledReceipt.amountKobo,
+                      date: settledReceipt.date,
+                      vaultSource: 'Cowrywise Vault / TSA Remita Disbursed',
+                    });
+                    toast.success('Bursary clearance receipt downloaded!');
+                  }}
+                  className="flex-1 gradient-bg-blue text-white font-mono text-xs shadow-xs hover:opacity-95"
                 >
-                  <Printer className="mr-1.5 h-3.5 w-3.5" /> Print Receipt
+                  <Download className="mr-1.5 h-3.5 w-3.5" /> Download Receipt
                 </Button>
                 <Button
                   size="sm"

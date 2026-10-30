@@ -20,13 +20,14 @@ import {
   Play,
   XCircle,
   FileText,
-  Printer,
   Share2,
   CheckCircle2,
   Loader2,
   Search,
   Trash2,
+  Download,
 } from 'lucide-react';
+import { downloadReceiptAsImage } from '@/lib/receipt-download';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -513,12 +514,22 @@ export default function SponsorDashboardPage() {
                 <span className="stamp-gold text-[9px] font-bold">TREASURY SINGLE ACCOUNT</span>
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="h-7 text-[10px] font-mono font-bold bg-white"
+                  onClick={() => {
+                    downloadReceiptAsImage({
+                      reference: `RRR-${selectedReceipt.id.slice(0, 10).toUpperCase()}`,
+                      payerName: selectedReceipt.sponsor_name || user?.email?.split('@')[0] || 'Sponsor',
+                      beneficiarySchool: selectedReceipt.goal?.institution || 'Federal University',
+                      purpose: selectedReceipt.goal?.title || 'Education Campaign Contribution',
+                      amountKobo: selectedReceipt.amount_kobo,
+                      date: selectedReceipt.created_at,
+                      vaultSource: 'Cowrywise Locked (0% Drift)',
+                    });
+                    toast.success('Receipt downloaded successfully!');
+                  }}
+                  className="h-8 text-xs font-mono font-bold gradient-bg-blue text-white shadow-xs rounded-full px-4 hover:opacity-95"
                 >
-                  <Printer className="mr-1 h-3 w-3" />
-                  Print Receipt
+                  <Download className="mr-1.5 h-3.5 w-3.5" />
+                  Download Receipt
                 </Button>
               </div>
             </div>
