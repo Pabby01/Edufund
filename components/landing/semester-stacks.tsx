@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { formatNaira } from '@/lib/finance';
 import { WordReveal, PillButton } from './primitives';
 import { ArrowRight, CheckCircle2, Heart } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface SemesterBundle {
   index: string;
@@ -84,8 +86,42 @@ const bundles: SemesterBundle[] = [
 ];
 
 export function SemesterStacks() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardElementsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // Loop through each card (except the last one) to scale and dim it when the next card scrolls up
+      cardElementsRef.current.forEach((card, index) => {
+        if (!card || index === bundles.length - 1) return;
+
+        const nextCard = cardElementsRef.current[index + 1];
+        if (!nextCard) return;
+
+        gsap.to(card, {
+          scale: 0.93 - index * 0.02,
+          yPercent: -4,
+          filter: 'brightness(0.7) blur(0.5px)',
+          transformOrigin: 'top center',
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: nextCard,
+            start: 'top 85%',
+            end: 'top 20%',
+            scrub: true,
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10">
+    <section ref={sectionRef} id="stacks" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white border-b border-white/10">
       <div className="relative mx-auto max-w-7xl">
         {/* Section Heading */}
         <div className="grid gap-6 lg:grid-cols-12 items-end pb-16">
@@ -124,6 +160,7 @@ export function SemesterStacks() {
           {bundles.map((bundle, idx) => (
             <div
               key={bundle.index}
+              ref={(el) => { cardElementsRef.current[idx] = el; }}
               className="sticky transition-all duration-300 mb-32 sm:mb-48 last:mb-10 will-change-transform"
               style={{
                 top: `${96 + idx * 36}px`,

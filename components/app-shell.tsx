@@ -28,7 +28,7 @@ export function AppShell({ children }: AppShellProps) {
   // 1. Authenticated Student & Sponsor Workspace Layout with Sidebar (desktop) and Bottom Nav (mobile)
   if (isDashboardRoute) {
     return (
-      <div className="min-h-screen bg-muted/20 dark:bg-slate-950/40 text-foreground selection:bg-brand-gold/30 w-full max-w-full overflow-x-hidden">
+      <div className="min-h-screen bg-muted/20 dark:bg-slate-950/40 text-foreground selection:bg-brand-gold/30 w-full">
         {/* Desktop Fixed Left Sidebar */}
         <DashboardSidebar />
 
@@ -36,7 +36,7 @@ export function AppShell({ children }: AppShellProps) {
         <DashboardMobileHeader />
 
         {/* Main Content Area */}
-        <div className="flex flex-col min-h-[calc(100vh-3.5rem)] lg:min-h-screen lg:pl-64 xl:pl-72 pb-20 lg:pb-0 min-w-0 w-full overflow-x-hidden">
+        <div className="flex flex-col min-h-[calc(100vh-3.5rem)] lg:min-h-screen lg:pl-64 xl:pl-72 pb-20 lg:pb-0 min-w-0 w-full">
           <DashboardTopBar />
           <main className="flex-1 w-full min-w-0">{children}</main>
           <DashboardFooter />
@@ -51,7 +51,7 @@ export function AppShell({ children }: AppShellProps) {
   // 2. Focused Authentication Layout
   if (isAuthRoute) {
     return (
-      <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-brand-gold/30 w-full max-w-full overflow-x-hidden">
+      <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-brand-gold/30 w-full">
         <AuthNav />
         <main className="flex-1 w-full min-w-0">{children}</main>
       </div>
@@ -60,9 +60,9 @@ export function AppShell({ children }: AppShellProps) {
 
   // 3. Public Pages (Landing, Fund Campaign, Legal, Support)
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-brand-gold/30 w-full max-w-full overflow-x-hidden min-w-0">
+    <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-brand-gold/30 w-full min-w-0">
       <Navbar />
-      <main className="flex-1 w-full max-w-full overflow-x-hidden min-w-0">{children}</main>
+      <main className="flex-1 w-full min-w-0">{children}</main>
       <Footer />
     </div>
   );

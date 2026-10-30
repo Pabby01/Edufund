@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { formatNaira, formatNairaShort } from '@/lib/finance';
 import { WordReveal, PillButton, EASE_OUT, EASE_SPRING } from './primitives';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   GraduationCap,
   Heart,
@@ -124,6 +126,54 @@ const heroGoals: GoalBox[] = [
 
 export function HeroSection() {
   const [selectedGoal, setSelectedGoal] = useState<GoalBox | null>(heroGoals[0]);
+  const shelfRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      if (shelfRef.current) {
+        gsap.to(shelfRef.current, {
+          y: -40,
+          rotateX: 6,
+          rotateY: -3,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: shelfRef.current,
+            start: 'top 50%',
+            end: 'bottom top',
+            scrub: 1.2,
+          },
+        });
+      }
+    }, shelfRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!shelfRef.current) return;
+    const rect = shelfRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    gsap.to(shelfRef.current, {
+      rotateY: x * 14,
+      rotateX: -y * 10,
+      duration: 0.45,
+      ease: 'power2.out',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!shelfRef.current) return;
+    gsap.to(shelfRef.current, {
+      rotateY: -4,
+      rotateX: 2,
+      duration: 0.7,
+      ease: 'power2.out',
+    });
+  };
 
   return (
     <section className="relative overflow-hidden pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b border-border/40">
@@ -235,10 +285,21 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column: 3D Perspective Floating Goal Display */}
-          <div className="lg:col-span-6 flex flex-col items-center lg:items-end w-full min-w-0 overflow-hidden lg:overflow-visible">
-            <div className="scene-3d w-full max-w-lg space-y-3 sm:space-y-5">
-              {/* Top tier of 3D goal cards */}
+          {/* Right Column: 3D Perspective Floating Goal Display (Shelfline Style) */}
+          <div
+            className="lg:col-span-6 flex flex-col items-center lg:items-end w-full min-w-0"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div
+              ref={shelfRef}
+              className="scene-3d w-full max-w-lg space-y-2 sm:space-y-4 will-change-transform"
+              style={{
+                perspective: '1400px',
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              {/* TOP SHELF — 3D Goals */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {heroGoals.slice(0, 3).map((goal) => {
                   const percent = Math.round((goal.raisedKobo / goal.targetKobo) * 100);
@@ -248,13 +309,13 @@ export function HeroSection() {
                     <motion.div
                       key={goal.id}
                       onClick={() => setSelectedGoal(goal)}
-                      whileHover={{ y: -6, scale: 1.03, rotateY: -2 }}
+                      whileHover={{ y: -8, scale: 1.04, rotateY: -2 }}
                       transition={{ duration: 0.35, ease: EASE_SPRING }}
                       className="cursor-pointer"
                     >
                       <div
-                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
-                          isSelected ? 'ring-2 ring-brand-gold shadow-2xl' : ''
+                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-all ${
+                          isSelected ? 'ring-2 ring-brand-gold shadow-[0_20px_40px_rgba(245,166,35,0.4)]' : ''
                         }`}
                         style={{
                           transform: 'perspective(800px) rotateY(-8deg) rotateX(3deg)',
@@ -288,7 +349,13 @@ export function HeroSection() {
                 })}
               </div>
 
-              {/* Second tier of 3D goal cards */}
+              {/* Top Shelf Plank (Shelfline Reference) */}
+              <div className="relative -mt-1 mb-4 sm:mb-6">
+                <div className="h-2.5 sm:h-3 w-full rounded-sm bg-gradient-to-b from-neutral-800 via-neutral-900 to-black shadow-[0_16px_28px_rgba(0,0,0,0.85)] border-t border-neutral-600/50" />
+                <div className="h-1 w-full bg-black/60 blur-xs" />
+              </div>
+
+              {/* BOTTOM SHELF — 3D Goals */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {heroGoals.slice(3, 6).map((goal) => {
                   const percent = Math.round((goal.raisedKobo / goal.targetKobo) * 100);
@@ -298,13 +365,13 @@ export function HeroSection() {
                     <motion.div
                       key={goal.id}
                       onClick={() => setSelectedGoal(goal)}
-                      whileHover={{ y: -6, scale: 1.03, rotateY: -2 }}
+                      whileHover={{ y: -8, scale: 1.04, rotateY: -2 }}
                       transition={{ duration: 0.35, ease: EASE_SPRING }}
                       className="cursor-pointer"
                     >
                       <div
-                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-shadow ${
-                          isSelected ? 'ring-2 ring-brand-gold shadow-2xl' : ''
+                        className={`preserve-3d relative h-36 sm:h-52 rounded-xl bg-gradient-to-br ${goal.gradient} p-2 sm:p-3 text-white shadow-xl border-t border-r border-white/25 flex flex-col justify-between overflow-hidden transition-all ${
+                          isSelected ? 'ring-2 ring-brand-gold shadow-[0_20px_40px_rgba(245,166,35,0.4)]' : ''
                         }`}
                         style={{
                           transform: 'perspective(800px) rotateY(-8deg) rotateX(3deg)',
@@ -336,6 +403,12 @@ export function HeroSection() {
                     </motion.div>
                   );
                 })}
+              </div>
+
+              {/* Bottom Shelf Plank (Shelfline Reference) */}
+              <div className="relative -mt-1 mb-2">
+                <div className="h-2.5 sm:h-3 w-full rounded-sm bg-gradient-to-b from-neutral-800 via-neutral-900 to-black shadow-[0_16px_28px_rgba(0,0,0,0.85)] border-t border-neutral-600/50" />
+                <div className="h-1 w-full bg-black/60 blur-xs" />
               </div>
             </div>
 
