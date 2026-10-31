@@ -107,6 +107,8 @@ export function Footer() {
             <ul className="space-y-2.5 text-neutral-400">
               <li><Link href="/how-it-works" className="hover:text-white transition-colors">How it works</Link></li>
               <li><Link href="/explore" className="hover:text-white transition-colors">Explore Campaigns</Link></li>
+              <li><Link href="/squads" className="hover:text-white transition-colors">Alumni Squads</Link></li>
+              <li><Link href="/sponsor" className="hover:text-white transition-colors">Sponsorship Hub</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">About EduFund</Link></li>
               <li><Link href="/support" className="hover:text-white transition-colors">Help & Support</Link></li>
               <li><Link href="/auth?mode=signin" className="hover:text-white transition-colors">Student Portal</Link></li>

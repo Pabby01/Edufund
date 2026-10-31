@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { formatNaira, daysUntilDeadline } from '@/lib/finance';
 
 function getServerClient() {
   return createClient(
@@ -34,14 +35,23 @@ export async function generateMetadata({
       };
     }
 
-    const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'https://edufund.app';
+    const daysLeft = goal.deadline ? daysUntilDeadline(goal.deadline) : 30;
+    const targetFormatted = formatNaira(goal.target_amount_kobo || 0);
+    const raisedFormatted = formatNaira(goal.starting_savings_kobo || 0);
+    const pct = (goal.target_amount_kobo || 0) > 0
+      ? Math.min(100, Math.round(((goal.starting_savings_kobo || 0) / goal.target_amount_kobo) * 100))
+      : 0;
+
     const ogSearchParams = new URLSearchParams({
       title: goal.title || 'Student Tuition Campaign',
       school: goal.institution || 'Nigerian University',
       name: goal.public_display_name || 'Verified Scholar',
-      target: String(goal.target_amount_kobo || 0),
-      raised: String(goal.starting_savings_kobo || 0),
-      days: '30',
+      target: targetFormatted,
+      raised: raisedFormatted,
+      percent: `${pct}%`,
+      days: daysLeft > 0 ? `${daysLeft} days left` : 'Deadline today',
+      category: goal.category ? goal.category.toUpperCase() : 'TUITION',
     });
 
     const ogImageUrl = `${siteOrigin}/api/og?${ogSearchParams.toString()}`;
