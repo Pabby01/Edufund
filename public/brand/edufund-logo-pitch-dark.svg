@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ef-bg-dark" x1="0" y1="0" x2="1920" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F131A" />
+      <stop offset="1" stop-color="#181C25" />
+    </linearGradient>
+    <radialGradient id="ef-glow-blue" cx="0.2" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#126DE2" stop-opacity="0.25" />
+      <stop offset="1" stop-color="#126DE2" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="ef-glow-gold" cx="0.8" cy="0.7" r="0.7">
+      <stop offset="0" stop-color="#EDAD21" stop-opacity="0.15" />
+      <stop offset="1" stop-color="#EDAD21" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="ef-grad-blue-p" x1="0" y1="0" x2="360" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E6FD9" />
+      <stop offset="1" stop-color="#0A4FA3" />
+    </linearGradient>
+    <linearGradient id="ef-grad-gold-p" x1="90" y1="54" x2="270" y2="306" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4C95D" />
+      <stop offset="1" stop-color="#D4A017" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#ef-bg-dark)" />
+  <rect width="1920" height="1080" fill="url(#ef-glow-blue)" />
+  <rect width="1920" height="1080" fill="url(#ef-glow-gold)" />
+
+  <!-- Center Card Frame -->
+  <g transform="translate(420, 260)">
+    <!-- Icon -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="220" height="220" rx="55" fill="url(#ef-grad-blue-p)" />
+      <path
+        d="M66 77C88 60 132 60 154 77"
+        stroke="url(#ef-grad-gold-p)"
+        stroke-width="13.75"
+        stroke-linecap="round"
+        fill="none"
+      />
+      <circle cx="110" cy="121" r="35.75" fill="url(#ef-grad-gold-p)" />
+      <path
+        d="M110 101.75V140.25M90.75 121H129.25"
+        stroke="#0A4FA3"
+        stroke-width="11"
+        stroke-linecap="round"
+      />
+      <path
+        d="M77 154C93.5 165 126.5 165 143 154"
+        stroke="#ffffff"
+        stroke-width="11"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.85"
+      />
+    </g>
+
+    <!-- Brand Typography -->
+    <text x="270" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Gabarito', 'Manrope', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="140" letter-spacing="-3">
+      <tspan fill="#428DF0">Edu</tspan><tspan fill="#EDAD21">Fund</tspan>
+    </text>
+
+    <text x="275" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Manrope', 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="32" fill="#E2E8F0" letter-spacing="-0.5">
+      Every semester funded, before the deadline.
+    </text>
+
+    <!-- Badges Row -->
+    <g transform="translate(0, 280)">
+      <rect x="0" y="0" width="280" height="48" rx="24" fill="#126DE2" fill-opacity="0.18" stroke="#126DE2" stroke-opacity="0.6" />
+      <text x="26" y="30" font-family="'Azeret Mono', monospace" font-weight="700" font-size="13" fill="#428DF0" letter-spacing="1.2">
+        🏛️ REMITA TSA BURSARY
+      </text>
+
+      <rect x="300" y="0" width="310" height="48" rx="24" fill="#EDAD21" fill-opacity="0.18" stroke="#EDAD21" stroke-opacity="0.6" />
+      <text x="324" y="30" font-family="'Azeret Mono', monospace" font-weight="700" font-size="13" fill="#F4C95D" letter-spacing="1.2">
+        💼 COWRYWISE VAULT (+8.5%)
+      </text>
+
+      <rect x="630" y="0" width="240" height="48" rx="24" fill="#10B981" fill-opacity="0.18" stroke="#10B981" stroke-opacity="0.6" />
+      <text x="654" y="30" font-family="'Azeret Mono', monospace" font-weight="700" font-size="13" fill="#34D399" letter-spacing="1.2">
+        👥 ALUMNI SQUADS
+      </text>
+    </g>
+  </g>
+</svg>
